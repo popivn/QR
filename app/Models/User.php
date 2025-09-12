@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id',
+        'group_id',
     ];
 
     /**
@@ -44,5 +46,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Một user thuộc về một group
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    // Kiểm tra quyền admin
+    public function isAdmin()
+    {
+        return $this->role_id == 1;
     }
 }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - VTTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <!-- Header -->
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-user-plus text-green-600 mr-2"></i>
+                    Đăng ký
+                </h2>
+                <p class="text-gray-600">Tạo tài khoản mới</p>
+            </div>
+
+            <!-- Register Form -->
+            <form class="mt-8 space-y-6" action="{{ route('register') }}" method="POST">
+                @csrf
+                
+                @if($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2"></i>Họ và tên
+                        </label>
+                        <input id="name" 
+                               name="name" 
+                               type="text" 
+                               value="{{ old('name') }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Nhập họ và tên"
+                               required>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2"></i>Email
+                        </label>
+                        <input id="email" 
+                               name="email" 
+                               type="email" 
+                               value="{{ old('email') }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Nhập email của bạn"
+                               required>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2"></i>Mật khẩu
+                        </label>
+                        <input id="password" 
+                               name="password" 
+                               type="password" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)"
+                               required>
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2"></i>Xác nhận mật khẩu
+                        </label>
+                        <input id="password_confirmation" 
+                               name="password_confirmation" 
+                               type="password" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Nhập lại mật khẩu"
+                               required>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Đăng ký
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Đã có tài khoản? 
+                        <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Đăng nhập ngay
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -118,7 +118,7 @@ class QRController extends Controller
             return redirect()->back()->with('error', 'File QR code không tồn tại');
         }
 
-        return Storage::download($student->qr_code_path, $student->mssv . '_qr.png');
+        return Storage::download($student->qr_code_path, $student->mssv);
     }
 
     public function downloadAllQR()
@@ -145,7 +145,7 @@ class QRController extends Controller
         foreach ($students as $student) {
             if (Storage::exists($student->qr_code_path)) {
                 $fileContent = Storage::get($student->qr_code_path);
-                $zip->addFromString($student->mssv . '_qr.png', $fileContent);
+                $zip->addFromString($student->mssv, $fileContent);
             }
         }
 
