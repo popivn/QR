@@ -14,6 +14,11 @@ class GroupController extends Controller
         $user = auth()->user();
         $group = $user->group;
         
+        // Nếu user chưa có group, hiển thị thông báo chờ admin phân công
+        if (!$group) {
+            return view('group.waiting', compact('user'));
+        }
+        
         return view('group.index', compact('group'));
     }
 

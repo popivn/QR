@@ -188,6 +188,25 @@
                     @endif
                 </div>
             </div>
+
+            <!-- QR Scanner Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="text-center">
+                    <i class="fas fa-camera text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">QR Code Scanner</h3>
+                    <p class="text-gray-600 text-sm mb-4">Quét mã QR của sinh viên</p>
+                    <div class="space-y-2">
+                        <a href="{{ route('qr.scanner') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 block">
+                            <i class="fas fa-qrcode mr-2"></i>
+                            Quét QR Code
+                        </a>
+                        <a href="{{ route('qr.statistics', $group->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 block">
+                            <i class="fas fa-chart-bar mr-2"></i>
+                            Xem thống kê
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

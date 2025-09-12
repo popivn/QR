@@ -16,4 +16,18 @@ class Group extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    // Một group có nhiều group_student records
+    public function groupStudents()
+    {
+        return $this->hasMany(GroupStudent::class);
+    }
+
+    // Lấy danh sách students đã được quét trong group này
+    public function scannedStudents()
+    {
+        return $this->belongsToMany(Student::class, 'group_student')
+                    ->withPivot('scan_count', 'last_scanned_at')
+                    ->withTimestamps();
+    }
 }

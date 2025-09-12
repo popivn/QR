@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QRController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\QRScannerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,25 +17,16 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Debug route
-Route::get('/debug', function() {
-    $user = auth()->user();
-    if ($user) {
-        return response()->json([
-            'authenticated' => true,
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'role_id' => $user->role_id,
-            'isAdmin' => $user->isAdmin(),
-            'group_id' => $user->group_id
-        ]);
-    }
-    return response()->json(['authenticated' => false]);
-});
 
 // Group routes (for all authenticated users)
 Route::middleware(['auth'])->group(function () {
     Route::get('/group', [GroupController::class, 'index'])->name('group.index');
+    
+    // QR Scanner routes (for all authenticated users)
+    Route::get('/qr/scanner', [QRScannerController::class, 'index'])->name('qr.scanner');
+    Route::post('/qr/scan', [QRScannerController::class, 'scan'])->name('qr.scan');
+    Route::get('/qr/statistics/{groupId?}', [QRScannerController::class, 'statistics'])->name('qr.statistics');
+    Route::get('/qr/api/statistics/{groupId}', [QRScannerController::class, 'getStatistics'])->name('qr.api.statistics');
 });
 
 // Admin only routes (role_id = 1)

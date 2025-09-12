@@ -91,12 +91,18 @@ class QRController extends Controller
             Storage::makeDirectory($qrDir);
         }
 
-        // Tạo QR code
+        // Tạo QR code với format JSON để scanner có thể parse dễ dàng
+        $qrData = json_encode([
+            'mssv' => $mssv,
+            'type' => 'student',
+            'timestamp' => now()->toISOString()
+        ]);
+
         $qrCodePath = $qrDir . '/' . $mssv . '.png';
         $qrCode = QrCode::format('png')
             ->size(300)
             ->margin(2)
-            ->generate($mssv);
+            ->generate($qrData);
 
         // Lưu QR code vào storage
         Storage::put($qrCodePath, $qrCode);
