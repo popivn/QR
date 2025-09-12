@@ -61,6 +61,39 @@ Route::get('/refresh-csrf', function () {
     ]);
 });
 
+// Test XMLHttpRequest
+Route::post('/test-xhr', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'XMLHttpRequest working',
+        'data' => request()->all(),
+        'timestamp' => now(),
+        'method' => request()->method(),
+        'headers' => request()->headers->all()
+    ]);
+});
+
+// Test route không cần authentication
+Route::post('/test-basic', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Basic POST working',
+        'data' => request()->all(),
+        'timestamp' => now()
+    ]);
+});
+
+// Test route với GET
+Route::get('/test-get', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'GET request working',
+        'timestamp' => now(),
+        'user_agent' => request()->header('User-Agent'),
+        'origin' => request()->header('Origin')
+    ]);
+});
+
 // Authentication routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);

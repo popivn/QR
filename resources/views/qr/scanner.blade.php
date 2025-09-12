@@ -90,6 +90,22 @@
                         <i class="fas fa-sync mr-2"></i>
                         Refresh CSRF
                     </button>
+                    <button id="testXhr" class="bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-code mr-2"></i>
+                        Test XHR
+                    </button>
+                    <button id="testBasic" class="bg-orange-600 hover:bg-orange-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-circle mr-2"></i>
+                        Test Basic
+                    </button>
+                    <button id="testGet" class="bg-teal-600 hover:bg-teal-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-download mr-2"></i>
+                        Test GET
+                    </button>
+                    <button id="testUrl" class="bg-pink-600 hover:bg-pink-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-link mr-2"></i>
+                        Test URL
+                    </button>
                 </div>
                 
                 <div class="mt-4 text-center">
@@ -197,6 +213,10 @@
             document.getElementById('testSimple').addEventListener('click', testSimple);
             document.getElementById('debugCsrf').addEventListener('click', debugCsrf);
             document.getElementById('refreshCsrf').addEventListener('click', refreshCsrf);
+            document.getElementById('testXhr').addEventListener('click', testXhr);
+            document.getElementById('testBasic').addEventListener('click', testBasic);
+            document.getElementById('testGet').addEventListener('click', testGet);
+            document.getElementById('testUrl').addEventListener('click', testUrl);
             document.getElementById('manualScanBtn').addEventListener('click', processManualInput);
             
             // Enter key for manual input
@@ -206,6 +226,137 @@
                 }
             });
         });
+
+        async function testUrl() {
+            try {
+                console.log('Testing URL access...');
+                showMessage('Đang test URL access...', 'info');
+                
+                // Test trực tiếp URL
+                const testUrl = window.location.origin + '/test-get';
+                console.log('Testing URL:', testUrl);
+                
+                // Thử mở URL trong tab mới
+                window.open(testUrl, '_blank');
+                
+                showMessage('Đã mở URL test trong tab mới. Kiểm tra tab đó.', 'info');
+                
+            } catch (error) {
+                console.error('URL test failed:', error);
+                showMessage('URL test lỗi: ' + error.message, 'error');
+            }
+        }
+
+        async function testGet() {
+            try {
+                console.log('Testing GET request...');
+                showMessage('Đang test GET request...', 'info');
+                
+                const response = await fetch('/test-get', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('GET response status:', response.status);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('GET test successful:', result);
+                    showMessage('GET test OK!', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('GET test failed:', error);
+                showMessage('GET test lỗi: ' + error.message, 'error');
+            }
+        }
+
+        async function testBasic() {
+            try {
+                console.log('Testing basic POST...');
+                showMessage('Đang test basic POST...', 'info');
+                
+                const response = await fetch('/test-basic', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ test: 'basic' })
+                });
+                
+                console.log('Basic POST response status:', response.status);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Basic POST test successful:', result);
+                    showMessage('Basic POST test OK!', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Basic POST test failed:', error);
+                showMessage('Basic POST test lỗi: ' + error.message, 'error');
+            }
+        }
+
+        async function testXhr() {
+            try {
+                console.log('Testing XMLHttpRequest...');
+                showMessage('Đang test XMLHttpRequest...', 'info');
+                
+                const csrfToken = '{{ csrf_token() }}';
+                const testUrl = new URL('/test-xhr', window.location.origin).href;
+                
+                console.log('XHR Test URL:', testUrl);
+                console.log('XHR CSRF Token:', csrfToken);
+                
+                const xhr = new XMLHttpRequest();
+                
+                xhr.open('POST', testUrl, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        console.log('XHR Test Status:', xhr.status);
+                        console.log('XHR Test Response:', xhr.responseText);
+                        
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                const result = JSON.parse(xhr.responseText);
+                                console.log('XHR Test Success:', result);
+                                showMessage('XMLHttpRequest test OK!', 'success');
+                            } catch (e) {
+                                console.error('XHR Test Parse error:', e);
+                                showMessage('XHR Test parse lỗi: ' + e.message, 'error');
+                            }
+                        } else {
+                            console.error('XHR Test Error:', xhr.status, xhr.responseText);
+                            showMessage('XHR Test lỗi HTTP ' + xhr.status, 'error');
+                        }
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    console.error('XHR Test Network error');
+                    showMessage('XHR Test lỗi mạng', 'error');
+                };
+                
+                xhr.send(JSON.stringify({ test: 'xhr connection' }));
+                
+            } catch (error) {
+                console.error('XHR Test failed:', error);
+                showMessage('XHR Test lỗi: ' + error.message, 'error');
+            }
+        }
 
         async function refreshCsrf() {
             try {
@@ -511,7 +662,8 @@
                 console.log('Processing QR data:', content);
                 console.log('Sending to URL:', '{{ route("qr.scan") }}');
                 console.log('Current domain:', window.location.origin);
-                console.log('CSRF Token:', '{{ csrf_token() }}');
+                console.log('User agent:', navigator.userAgent);
+                console.log('Is secure:', window.location.protocol === 'https:');
                 
                 // Lấy CSRF token từ meta tag hoặc cookie
                 let csrfToken = '{{ csrf_token() }}';
@@ -531,42 +683,58 @@
                 const scanUrl = new URL('{{ route("qr.scan") }}', window.location.origin).href;
                 console.log('Full scan URL:', scanUrl);
                 
-                const response = await fetch(scanUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache'
-                    },
-                    credentials: 'include',
-                    mode: 'cors',
-                    body: JSON.stringify(requestData)
-                });
-
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Response error text:', errorText);
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                }
-
-                const result = await response.json();
-                console.log('Response data:', result);
+                // Thử với XMLHttpRequest thay vì fetch
+                console.log('Trying XMLHttpRequest...');
+                const xhr = new XMLHttpRequest();
                 
-                if (result.success) {
-                    addScanResult(result.data);
-                    showSuccessModal(result.data);
-                    scanCount++;
-                    uniqueStudents.add(result.data.student.id);
-                    updateStatistics();
-                } else {
-                    showMessage(result.message, 'error');
-                }
+                return new Promise((resolve, reject) => {
+                    xhr.open('POST', scanUrl, true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                    xhr.setRequestHeader('Accept', 'application/json');
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            console.log('XHR Status:', xhr.status);
+                            console.log('XHR Response:', xhr.responseText);
+                            
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                try {
+                                    const result = JSON.parse(xhr.responseText);
+                                    console.log('XHR Success:', result);
+                                    
+                                    if (result.success) {
+                                        addScanResult(result.data);
+                                        showSuccessModal(result.data);
+                                        scanCount++;
+                                        uniqueStudents.add(result.data.student.id);
+                                        updateStatistics();
+                                    } else {
+                                        showMessage(result.message, 'error');
+                                    }
+                                    resolve(result);
+                                } catch (e) {
+                                    console.error('XHR Parse error:', e);
+                                    showMessage('Lỗi parse response: ' + e.message, 'error');
+                                    reject(e);
+                                }
+                            } else {
+                                console.error('XHR Error:', xhr.status, xhr.responseText);
+                                showMessage('Lỗi HTTP ' + xhr.status + ': ' + xhr.responseText, 'error');
+                                reject(new Error(`HTTP ${xhr.status}`));
+                            }
+                        }
+                    };
+                    
+                    xhr.onerror = function() {
+                        console.error('XHR Network error');
+                        showMessage('Lỗi kết nối mạng', 'error');
+                        reject(new Error('Network error'));
+                    };
+                    
+                    xhr.send(JSON.stringify(requestData));
+                });
                 
             } catch (error) {
                 console.error('Scan processing error:', error);
@@ -575,7 +743,6 @@
                     stack: error.stack
                 });
                 
-                // Không dùng fallback form submission nữa để tránh reload
                 showMessage('Lỗi kết nối: ' + error.message + '. Vui lòng thử lại.', 'error');
             }
         }
