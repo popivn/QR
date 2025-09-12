@@ -10,6 +10,57 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Test route for ngrok debugging
+Route::get('/test-ngrok', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Ngrok connection working',
+        'timestamp' => now(),
+        'headers' => request()->headers->all(),
+        'session_id' => session()->getId(),
+        'csrf_token' => csrf_token()
+    ]);
+});
+
+// Simple test route for mobile
+Route::post('/test-mobile', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Mobile POST request working',
+        'data' => request()->all(),
+        'timestamp' => now(),
+        'session_id' => session()->getId(),
+        'user_id' => auth()->id()
+    ]);
+});
+
+// Test route without authentication
+Route::post('/test-simple', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Simple POST working',
+        'data' => request()->all(),
+        'timestamp' => now()
+    ]);
+});
+
+// Debug CSRF token
+Route::get('/debug-csrf', function () {
+    return response()->json([
+        'csrf_token' => csrf_token(),
+        'session_id' => session()->getId(),
+        'user_id' => auth()->id(),
+        'headers' => request()->headers->all()
+    ]);
+});
+
+// Refresh CSRF token
+Route::get('/refresh-csrf', function () {
+    return response()->json([
+        'csrf_token' => csrf_token()
+    ]);
+});
+
 // Authentication routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -25,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
     // QR Scanner routes (for all authenticated users)
     Route::get('/qr/scanner', [QRScannerController::class, 'index'])->name('qr.scanner');
     Route::post('/qr/scan', [QRScannerController::class, 'scan'])->name('qr.scan');
+    Route::post('/qr/scan-image', [QRScannerController::class, 'scanImage'])->name('qr.scan-image');
     Route::get('/qr/statistics/{groupId?}', [QRScannerController::class, 'statistics'])->name('qr.statistics');
     Route::get('/qr/api/statistics/{groupId}', [QRScannerController::class, 'getStatistics'])->name('qr.api.statistics');
 });

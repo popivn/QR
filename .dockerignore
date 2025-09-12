@@ -1,0 +1,82 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# Development files
+.env
+.env.example
+.env.local
+.env.development
+.env.testing
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node modules (will be installed in container)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+public/hot
+public/storage
+storage/*.key
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Testing
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Development tools
+.php_cs.cache
+.php_cs.dist
+.phpcs.xml
+.phpcs.xml.dist
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Cache
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+
+# Vendor (will be installed in container)
+vendor/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Laravel specific
+artisan
+storage/app/public/*
+!storage/app/public/.gitignore
+
+# Backup files
+*.bak
+*.backup

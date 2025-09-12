@@ -8,6 +8,7 @@ use App\Models\Group;
 use App\Models\GroupStudent;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Zxing\QrReader;
 
 class QRScannerController extends Controller
 {
@@ -28,16 +29,134 @@ class QRScannerController extends Controller
     }
 
     /**
-     * Xử lý dữ liệu QR code được quét
+     * Xử lý upload ảnh và quét QR code
+     */
+    public function scanImage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'qr_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'group_id' => 'required|exists:groups,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        try {
+            $groupId = $request->group_id;
+            $image = $request->file('qr_image');
+            
+            // Lưu ảnh tạm thời
+            $tempPath = $image->store('temp', 'public');
+            $fullPath = storage_path('app/public/' . $tempPath);
+            
+            // Chuyển đổi ảnh sang định dạng PNG để tránh lỗi pixel type
+            $convertedPath = $this->convertImageToPng($fullPath);
+            
+            // Quét QR code từ ảnh đã chuyển đổi
+            $qrReader = new QrReader($convertedPath);
+            $qrData = $qrReader->text();
+            
+            // Xóa ảnh tạm thời
+            unlink($fullPath);
+            if ($convertedPath !== $fullPath) {
+                unlink($convertedPath);
+            }
+            
+            if (empty($qrData)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy QR code trong ảnh. Vui lòng thử ảnh khác.'
+                ], 404);
+            }
+            
+            // Tìm student dựa trên QR data
+            $student = $this->findStudentByQRData($qrData);
+            
+            if (!$student) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy sinh viên với mã QR này'
+                ], 404);
+            }
+
+            // Lưu thông tin quét vào database
+            $groupStudent = GroupStudent::recordScan($groupId, $student->id);
+            
+            // Lấy thông tin group
+            $group = Group::find($groupId);
+            
+            Log::info('QR Code scanned from image', [
+                'student_id' => $student->id,
+                'student_mssv' => $student->mssv,
+                'group_id' => $groupId,
+                'group_name' => $group->name,
+                'scan_count' => $groupStudent->scan_count,
+                'user_id' => auth()->id(),
+                'qr_data' => $qrData
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Quét QR thành công!',
+                'data' => [
+                    'student' => [
+                        'id' => $student->id,
+                        'mssv' => $student->mssv,
+                        'name' => $student->name,
+                        'class' => $student->class
+                    ],
+                    'group' => [
+                        'id' => $group->id,
+                        'name' => $group->name
+                    ],
+                    'scan_count' => $groupStudent->scan_count,
+                    'last_scanned_at' => $groupStudent->last_scanned_at->format('d/m/Y H:i:s')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('QR Image Scan error', [
+                'error' => $e->getMessage(),
+                'group_id' => $request->group_id,
+                'user_id' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi xử lý ảnh QR code: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Xử lý dữ liệu QR code được quét (manual input)
      */
     public function scan(Request $request)
     {
+        Log::info('QR Scan request received', [
+            'request_data' => $request->all(),
+            'user_id' => auth()->id(),
+            'headers' => $request->headers->all(),
+            'content_type' => $request->header('Content-Type'),
+            'method' => $request->method()
+        ]);
+
         $validator = Validator::make($request->all(), [
             'qr_data' => 'required|string',
             'group_id' => 'required|exists:groups,id'
         ]);
 
         if ($validator->fails()) {
+            Log::error('QR Scan validation failed', [
+                'errors' => $validator->errors(),
+                'request_data' => $request->all()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Dữ liệu không hợp lệ',
@@ -75,7 +194,7 @@ class QRScannerController extends Controller
                 'user_id' => auth()->id()
             ]);
 
-            return response()->json([
+            $responseData = [
                 'success' => true,
                 'message' => 'Quét QR thành công!',
                 'data' => [
@@ -92,7 +211,15 @@ class QRScannerController extends Controller
                     'scan_count' => $groupStudent->scan_count,
                     'last_scanned_at' => $groupStudent->last_scanned_at->format('d/m/Y H:i:s')
                 ]
-            ]);
+            ];
+
+            // Nếu là AJAX request, trả về JSON
+            if ($request->ajax() || $request->wantsJson() || $request->header('Accept') === 'application/json') {
+                return response()->json($responseData);
+            }
+            
+            // Nếu là form submission, redirect với message
+            return redirect()->back()->with('success', $responseData['message']);
 
         } catch (\Exception $e) {
             Log::error('QR Scan error', [

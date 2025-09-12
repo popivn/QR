@@ -3,77 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Quét QR Code - {{ $group->name ?? 'Group' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Load HTML5 QR Code from CDN -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         .scanner-container {
             position: relative;
             width: 100%;
             max-width: 500px;
             margin: 0 auto;
-        }
-        
-        .scanner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border: 2px solid #3b82f6;
-            border-radius: 8px;
-            pointer-events: none;
-        }
-        
-        .scanner-corner {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #3b82f6;
-        }
-        
-        .scanner-corner.top-left {
-            top: -3px;
-            left: -3px;
-            border-right: none;
-            border-bottom: none;
-        }
-        
-        .scanner-corner.top-right {
-            top: -3px;
-            right: -3px;
-            border-left: none;
-            border-bottom: none;
-        }
-        
-        .scanner-corner.bottom-left {
-            bottom: -3px;
-            left: -3px;
-            border-right: none;
-            border-top: none;
-        }
-        
-        .scanner-corner.bottom-right {
-            bottom: -3px;
-            right: -3px;
-            border-left: none;
-            border-top: none;
-        }
-        
-        .scan-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-            animation: scan 2s linear infinite;
-        }
-        
-        @keyframes scan {
-            0% { transform: translateY(-100px); }
-            100% { transform: translateY(100px); }
         }
         
         .success-animation {
@@ -88,27 +29,27 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <!-- Header -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between">
+        <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                         <i class="fas fa-qrcode mr-2 text-blue-600"></i>
                         Quét QR Code
                     </h1>
-                    <p class="text-gray-600 mt-1">
+                    <p class="text-gray-600 mt-1 text-sm sm:text-base">
                         Group: <span class="font-semibold text-blue-600">{{ $group->name ?? 'Chưa có group' }}</span>
                     </p>
                 </div>
-                <div class="flex space-x-3">
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <a href="{{ route('qr.statistics', $group->id ?? 1) }}" 
-                       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center">
+                       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center text-sm">
                         <i class="fas fa-chart-bar mr-2"></i>
                         Thống kê
                     </a>
                     <a href="{{ route('group.index') }}" 
-                       class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center">
+                       class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center justify-center text-sm">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Quay lại
                     </a>
@@ -116,39 +57,38 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Scanner Section -->
-            <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+            <!-- Camera Scanner Section -->
+            <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     <i class="fas fa-camera mr-2 text-blue-600"></i>
                     Camera Scanner
                 </h2>
                 
                 <div class="scanner-container">
-                    <video id="preview" class="w-full rounded-lg" style="display: none;"></video>
-                    <div id="scanner-placeholder" class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <div class="text-center">
-                            <i class="fas fa-camera text-4xl text-gray-400 mb-2"></i>
-                            <p class="text-gray-500">Đang khởi tạo camera...</p>
-                        </div>
-                    </div>
-                    <div class="scanner-overlay" style="display: none;">
-                        <div class="scanner-corner top-left"></div>
-                        <div class="scanner-corner top-right"></div>
-                        <div class="scanner-corner bottom-left"></div>
-                        <div class="scanner-corner bottom-right"></div>
-                        <div class="scan-line"></div>
-                    </div>
+                    <div id="qr-reader" class="w-full"></div>
                 </div>
                 
-                <div class="mt-4 flex justify-center space-x-3">
-                    <button id="startScanner" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center">
+                <div class="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
+                    <button id="startScanner" class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
                         <i class="fas fa-play mr-2"></i>
                         Bắt đầu quét
                     </button>
-                    <button id="stopScanner" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center" style="display: none;">
-                        <i class="fas fa-stop mr-2"></i>
-                        Dừng quét
+                    <button id="testConnection" class="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-wifi mr-2"></i>
+                        Test kết nối
+                    </button>
+                    <button id="testSimple" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-bolt mr-2"></i>
+                        Test đơn giản
+                    </button>
+                    <button id="debugCsrf" class="bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-bug mr-2"></i>
+                        Debug CSRF
+                    </button>
+                    <button id="refreshCsrf" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center text-sm sm:text-base w-full sm:w-auto">
+                        <i class="fas fa-sync mr-2"></i>
+                        Refresh CSRF
                     </button>
                 </div>
                 
@@ -158,10 +98,42 @@
                         Hướng camera vào mã QR để quét
                     </p>
                 </div>
+                
+                <!-- Manual Input -->
+                <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">
+                        <i class="fas fa-keyboard mr-2 text-purple-600"></i>
+                        Hoặc nhập thủ công
+                    </h3>
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <input type="text" id="manualInput" 
+                               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+                               placeholder="Nhập MSSV hoặc nội dung QR code...">
+                        <button id="manualScanBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-6 py-2 rounded-lg flex items-center justify-center text-sm sm:text-base">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Gửi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Info Section -->
+            <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                    Thông tin QR Code
+                </h2>
+                
+                <div id="qr-info" class="space-y-3">
+                    <div class="text-center text-gray-500 py-4">
+                        <i class="fas fa-qrcode text-2xl mb-2"></i>
+                        <p>Chưa có QR code nào được quét</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Results Section -->
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     <i class="fas fa-list mr-2 text-green-600"></i>
                     Kết quả quét
@@ -207,94 +179,384 @@
     </div>
 
     <script>
-        let scanner = null;
+        let html5QrcodeScanner = null;
         let isScanning = false;
         let scanCount = 0;
         let uniqueStudents = new Set();
 
         // Initialize scanner
-        document.getElementById('startScanner').addEventListener('click', startScanner);
-        document.getElementById('stopScanner').addEventListener('click', stopScanner);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Html5Qrcode is loaded
+            console.log('Html5Qrcode available:', typeof Html5Qrcode !== 'undefined');
+            if (typeof Html5Qrcode !== 'undefined') {
+                console.log('Html5Qrcode version:', Html5Qrcode.version || 'unknown');
+            }
+            
+            document.getElementById('startScanner').addEventListener('click', startScanner);
+            document.getElementById('testConnection').addEventListener('click', testConnection);
+            document.getElementById('testSimple').addEventListener('click', testSimple);
+            document.getElementById('debugCsrf').addEventListener('click', debugCsrf);
+            document.getElementById('refreshCsrf').addEventListener('click', refreshCsrf);
+            document.getElementById('manualScanBtn').addEventListener('click', processManualInput);
+            
+            // Enter key for manual input
+            document.getElementById('manualInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    processManualInput();
+                }
+            });
+        });
+
+        async function refreshCsrf() {
+            try {
+                console.log('Refreshing CSRF token...');
+                showMessage('Đang refresh CSRF token...', 'info');
+                
+                const response = await fetch('/refresh-csrf', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('New CSRF token:', result.csrf_token);
+                    
+                    // Cập nhật meta tag
+                    const metaToken = document.querySelector('meta[name="csrf-token"]');
+                    if (metaToken) {
+                        metaToken.setAttribute('content', result.csrf_token);
+                    }
+                    
+                    showMessage('CSRF token đã được refresh!', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('CSRF refresh failed:', error);
+                showMessage('Refresh CSRF lỗi: ' + error.message, 'error');
+            }
+        }
+
+        async function debugCsrf() {
+            try {
+                console.log('Debugging CSRF...');
+                showMessage('Đang debug CSRF...', 'info');
+                
+                const response = await fetch('/debug-csrf', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('CSRF Debug info:', result);
+                    showMessage('CSRF Debug OK! Xem console.', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('CSRF Debug failed:', error);
+                showMessage('CSRF Debug lỗi: ' + error.message, 'error');
+            }
+        }
+
+        async function testSimple() {
+            try {
+                console.log('Testing simple connection...');
+                showMessage('Đang test đơn giản...', 'info');
+                
+                const response = await fetch('/test-simple', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ test: 'simple' })
+                });
+                
+                console.log('Simple test response status:', response.status);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Simple test successful:', result);
+                    showMessage('Test đơn giản OK!', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Simple test failed:', error);
+                showMessage('Test đơn giản lỗi: ' + error.message, 'error');
+            }
+        }
+
+        async function testConnection() {
+            try {
+                console.log('Testing connection...');
+                showMessage('Đang test kết nối...', 'info');
+                
+                // Test với cùng headers như QR scan
+                const csrfToken = '{{ csrf_token() }}';
+                const testUrl = new URL('/test-mobile', window.location.origin).href;
+                
+                console.log('Test URL:', testUrl);
+                console.log('CSRF Token:', csrfToken);
+                
+                const response = await fetch(testUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    credentials: 'include',
+                    mode: 'cors',
+                    body: JSON.stringify({ 
+                        test: 'mobile connection',
+                        group_id: {{ $group->id ?? 1 }}
+                    })
+                });
+                
+                console.log('Test response status:', response.status);
+                console.log('Test response headers:', response.headers);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Connection test successful:', result);
+                    showMessage('Kết nối OK! Có thể quét QR code.', 'success');
+                } else {
+                    const errorText = await response.text();
+                    console.error('Test response error:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+            } catch (error) {
+                console.error('Connection test failed:', error);
+                showMessage('Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
 
         async function startScanner() {
             try {
-                const cameras = await Instascan.Camera.getCameras();
-                
-                if (cameras.length === 0) {
-                    alert('Không tìm thấy camera trên thiết bị!');
+                // Kiểm tra thư viện Html5Qrcode
+                if (typeof Html5Qrcode === 'undefined') {
+                    showMessage('Thư viện quét QR chưa được tải. Vui lòng làm mới trang và thử lại.', 'error');
                     return;
                 }
 
-                // Use back camera if available, otherwise use first camera
-                const camera = cameras.find(c => c.name.toLowerCase().includes('back')) || cameras[0];
-                
-                scanner = new Instascan.Scanner({
-                    video: document.getElementById('preview'),
-                    scanPeriod: 5,
-                    mirror: false
-                });
+                // Tạo HTML5 QR Code Scanner với giao diện mặc định
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "qr-reader",
+                    { 
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    },
+                    false // verbose = false
+                );
 
-                scanner.addListener('scan', function (content) {
-                    handleScan(content);
-                });
-
-                await scanner.start(camera);
+                // Bắt đầu quét
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
                 
-                // Show scanner UI
-                document.getElementById('preview').style.display = 'block';
-                document.getElementById('scanner-placeholder').style.display = 'none';
-                document.querySelector('.scanner-overlay').style.display = 'block';
+                // Hide start button
                 document.getElementById('startScanner').style.display = 'none';
-                document.getElementById('stopScanner').style.display = 'inline-flex';
                 
                 isScanning = true;
                 
+                // Show success message
+                showMessage('Camera đã được khởi tạo thành công!', 'success');
+                
             } catch (error) {
                 console.error('Scanner error:', error);
-                alert('Lỗi khởi tạo camera: ' + error.message);
+                showMessage('Lỗi khởi tạo camera: ' + error.message, 'error');
             }
         }
 
-        function stopScanner() {
-            if (scanner) {
-                scanner.stop();
-                scanner = null;
-            }
-            
-            // Hide scanner UI
-            document.getElementById('preview').style.display = 'none';
-            document.getElementById('scanner-placeholder').style.display = 'block';
-            document.querySelector('.scanner-overlay').style.display = 'none';
-            document.getElementById('startScanner').style.display = 'inline-flex';
-            document.getElementById('stopScanner').style.display = 'none';
-            
-            isScanning = false;
-        }
 
-        async function handleScan(content) {
-            if (!isScanning) return;
+
+        async function processManualInput() {
+            const input = document.getElementById('manualInput').value.trim();
             
-            // Prevent multiple scans of the same content in quick succession
-            if (window.lastScanContent === content && Date.now() - window.lastScanTime < 2000) {
+            if (!input) {
+                showMessage('Vui lòng nhập nội dung QR code!', 'error');
                 return;
             }
-            window.lastScanContent = content;
-            window.lastScanTime = Date.now();
 
             try {
+                console.log('Processing manual input:', input);
+                
                 const response = await fetch('{{ route("qr.scan") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        qr_data: content,
+                        qr_data: input,
                         group_id: {{ $group->id ?? 1 }}
                     })
                 });
 
+                console.log('Manual input response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const result = await response.json();
+                console.log('Manual input response data:', result);
+                
+                if (result.success) {
+                    addScanResult(result.data);
+                    showSuccessModal(result.data);
+                    scanCount++;
+                    uniqueStudents.add(result.data.student.id);
+                    updateStatistics();
+                    document.getElementById('manualInput').value = '';
+                } else {
+                    showMessage(result.message, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Manual scan error:', error);
+                console.error('Manual scan error details:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+                showMessage('Lỗi khi xử lý dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (!isScanning) return;
+            
+            // Prevent multiple scans of the same content in quick succession
+            if (window.lastScanContent === decodedText && Date.now() - window.lastScanTime < 2000) {
+                return;
+            }
+            window.lastScanContent = decodedText;
+            window.lastScanTime = Date.now();
+
+            console.log('QR Code detected:', decodedText);
+            console.log('Decoded result:', decodedResult);
+            
+            // Hiển thị thông tin QR code
+            displayQRInfo(decodedText, decodedResult);
+            
+            // Hiển thị kết quả quét
+            showMessage(`QR Code quét được: ${decodedText}`, 'info');
+            
+            // Tự động xử lý QR code
+            handleScan(decodedText);
+        }
+
+        function displayQRInfo(decodedText, decodedResult) {
+            const qrInfoContainer = document.getElementById('qr-info');
+            
+            // Remove placeholder if exists
+            const placeholder = qrInfoContainer.querySelector('.text-center');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            const infoElement = document.createElement('div');
+            infoElement.className = 'bg-blue-50 border border-blue-200 rounded-lg p-4';
+            infoElement.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-gray-800">Nội dung QR:</span>
+                        <span class="text-blue-600 font-mono text-sm">${decodedText}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-gray-800">Độ dài:</span>
+                        <span class="text-gray-600">${decodedText.length} ký tự</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-gray-800">Thời gian:</span>
+                        <span class="text-gray-600">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex items-center text-green-600 text-sm">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span>Đã tự động xử lý và lưu vào database</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            qrInfoContainer.innerHTML = '';
+            qrInfoContainer.appendChild(infoElement);
+        }
+
+
+        function onScanFailure(error) {
+            // Không cần xử lý lỗi scan, chỉ log để debug
+            // console.log('Scan failed:', error);
+        }
+
+
+        async function handleScan(content) {
+            try {
+                console.log('Processing QR data:', content);
+                console.log('Sending to URL:', '{{ route("qr.scan") }}');
+                console.log('Current domain:', window.location.origin);
+                console.log('CSRF Token:', '{{ csrf_token() }}');
+                
+                // Lấy CSRF token từ meta tag hoặc cookie
+                let csrfToken = '{{ csrf_token() }}';
+                const metaToken = document.querySelector('meta[name="csrf-token"]');
+                if (metaToken) {
+                    csrfToken = metaToken.getAttribute('content');
+                }
+                
+                const requestData = {
+                    qr_data: content,
+                    group_id: {{ $group->id ?? 1 }}
+                };
+                console.log('Request data:', requestData);
+                console.log('Using CSRF token:', csrfToken);
+                
+                // Tạo URL tuyệt đối cho mobile
+                const scanUrl = new URL('{{ route("qr.scan") }}', window.location.origin).href;
+                console.log('Full scan URL:', scanUrl);
+                
+                const response = await fetch(scanUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    credentials: 'include',
+                    mode: 'cors',
+                    body: JSON.stringify(requestData)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error text:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                const result = await response.json();
+                console.log('Response data:', result);
                 
                 if (result.success) {
                     addScanResult(result.data);
@@ -303,12 +565,18 @@
                     uniqueStudents.add(result.data.student.id);
                     updateStatistics();
                 } else {
-                    showError(result.message);
+                    showMessage(result.message, 'error');
                 }
                 
             } catch (error) {
                 console.error('Scan processing error:', error);
-                showError('Lỗi xử lý QR code: ' + error.message);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                // Không dùng fallback form submission nữa để tránh reload
+                showMessage('Lỗi kết nối: ' + error.message + '. Vui lòng thử lại.', 'error');
             }
         }
 
@@ -372,24 +640,43 @@
             document.getElementById('successModal').style.display = 'none';
         }
 
-        function showError(message) {
+        function showMessage(message, type = 'info') {
             const resultsContainer = document.getElementById('scan-results');
             
-            const errorElement = document.createElement('div');
-            errorElement.className = 'bg-red-50 border border-red-200 rounded-lg p-3';
-            errorElement.innerHTML = `
+            const messageElement = document.createElement('div');
+            let bgColor, textColor, icon;
+            
+            switch(type) {
+                case 'success':
+                    bgColor = 'bg-green-50 border-green-200';
+                    textColor = 'text-green-800';
+                    icon = 'fas fa-check-circle text-green-600';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-50 border-red-200';
+                    textColor = 'text-red-800';
+                    icon = 'fas fa-exclamation-triangle text-red-600';
+                    break;
+                default:
+                    bgColor = 'bg-blue-50 border-blue-200';
+                    textColor = 'text-blue-800';
+                    icon = 'fas fa-info-circle text-blue-600';
+            }
+            
+            messageElement.className = `${bgColor} border rounded-lg p-3`;
+            messageElement.innerHTML = `
                 <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
-                    <span class="text-red-800">${message}</span>
+                    <i class="${icon} mr-2"></i>
+                    <span class="${textColor}">${message}</span>
                 </div>
             `;
             
-            resultsContainer.insertBefore(errorElement, resultsContainer.firstChild);
+            resultsContainer.insertBefore(messageElement, resultsContainer.firstChild);
             
             // Remove after 5 seconds
             setTimeout(() => {
-                if (errorElement.parentNode) {
-                    errorElement.parentNode.removeChild(errorElement);
+                if (messageElement.parentNode) {
+                    messageElement.parentNode.removeChild(messageElement);
                 }
             }, 5000);
         }
@@ -408,8 +695,8 @@
 
         // Cleanup on page unload
         window.addEventListener('beforeunload', function() {
-            if (scanner) {
-                scanner.stop();
+            if (html5QrcodeScanner && isScanning) {
+                html5QrcodeScanner.stop();
             }
         });
     </script>
