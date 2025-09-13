@@ -44,7 +44,8 @@ RUN mkdir -p bootstrap/cache \
 # Set proper permissions
 RUN chown -R appuser:appuser /var/www \
     && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
+    && chmod -R 755 /var/www/bootstrap/cache \
+    && chmod +x /var/www/artisan
 
 # Switch to non-root user
 USER appuser
@@ -53,4 +54,4 @@ USER appuser
 EXPOSE 8000
 
 # Start Laravel
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
