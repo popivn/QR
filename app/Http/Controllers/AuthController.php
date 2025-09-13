@@ -9,6 +9,18 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Thêm CORS headers cho response
+     */
+    private function addCorsHeaders($response, $request)
+    {
+        $origin = $request->header('Origin');
+        if ($origin && (str_contains($origin, 'ngrok') || str_contains($origin, 'localhost'))) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+            $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        }
+        return $response;
+    }
     public function showLogin()
     {
         return view('auth.login');

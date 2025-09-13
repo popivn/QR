@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Quét QR Code - {{ $group->name ?? 'Group' }}</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title>Quét QR Code - <?php echo e($group->name ?? 'Group'); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Load HTML5 QR Code from CDN -->
@@ -39,16 +39,16 @@
                         Quét QR Code
                     </h1>
                     <p class="text-gray-600 mt-1 text-sm sm:text-base">
-                        Group: <span class="font-semibold text-blue-600">{{ $group->name ?? 'Chưa có group' }}</span>
+                        Group: <span class="font-semibold text-blue-600"><?php echo e($group->name ?? 'Chưa có group'); ?></span>
                     </p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <a href="{{ route('qr.statistics', $group->id ?? 1) }}" 
+                    <a href="<?php echo e(route('qr.statistics', $group->id ?? 1)); ?>" 
                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center text-sm">
                         <i class="fas fa-chart-bar mr-2"></i>
                         Thống kê
                     </a>
-                    <a href="{{ route('group.index') }}" 
+                    <a href="<?php echo e(route('group.index')); ?>" 
                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center justify-center text-sm">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Quay lại
@@ -301,7 +301,7 @@
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
                 // Determine the correct URL based on current protocol
-                let scanUrl = '{{ route("qr.scan") }}';
+                let scanUrl = '<?php echo e(route("qr.scan")); ?>';
                 if (window.location.protocol === 'https:' && scanUrl.startsWith('http:')) {
                     scanUrl = scanUrl.replace('http:', 'https:');
                 }
@@ -347,8 +347,6 @@
                                 showMessage('Chờ 1.5 giây trước khi quét tiếp...', 'info');
                                 setTimeout(() => {
                                     isProcessing = false;
-                                    document.getElementById('processing-indicator').classList.add('hidden');
-                                    document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                                     showMessage('Sẵn sàng quét QR code tiếp theo', 'success');
                                 }, 1500);
                             } catch (e) {
@@ -362,8 +360,6 @@
                             // Reset processing flag on error
                             setTimeout(() => {
                                 isProcessing = false;
-                                document.getElementById('processing-indicator').classList.add('hidden');
-                                document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                                 showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                             }, 1500);
                         }
@@ -381,8 +377,6 @@
                     // Reset processing flag on network error
                     setTimeout(() => {
                         isProcessing = false;
-                        document.getElementById('processing-indicator').classList.add('hidden');
-                        document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                         showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                     }, 1500);
                 };
@@ -394,8 +388,6 @@
                     // Reset processing flag on timeout
                     setTimeout(() => {
                         isProcessing = false;
-                        document.getElementById('processing-indicator').classList.add('hidden');
-                        document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                         showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                     }, 1500);
                 };
@@ -409,8 +401,6 @@
                 // Reset processing flag on catch error
                 setTimeout(() => {
                     isProcessing = false;
-                    document.getElementById('processing-indicator').classList.add('hidden');
-                    document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                     showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                 }, 1500);
             }
@@ -565,4 +555,4 @@
         }
     </script>
 </body>
-</html>
+</html><?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/qr/scanner.blade.php ENDPATH**/ ?>

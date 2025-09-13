@@ -14,9 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'ngrok' => \App\Http\Middleware\HandleNgrok::class,
+            'auth-ngrok' => \App\Http\Middleware\HandleAuthNgrok::class,
         ]);
         
-        // Thêm middleware ngrok vào web group
+        // Thêm middleware ngrok vào web group (chỉ cho routes cần thiết)
         $middleware->web(append: [
             \App\Http\Middleware\HandleNgrok::class,
         ]);

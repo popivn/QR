@@ -8,98 +8,18 @@ use App\Http\Controllers\QRScannerController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
-// Test route for ngrok debugging
-Route::get('/test-ngrok', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Ngrok connection working',
-        'timestamp' => now(),
-        'headers' => request()->headers->all(),
-        'session_id' => session()->getId(),
-        'csrf_token' => csrf_token()
-    ]);
-});
+// Debug routes removed for cleaner production code
 
-// Simple test route for mobile
-Route::post('/test-mobile', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Mobile POST request working',
-        'data' => request()->all(),
-        'timestamp' => now(),
-        'session_id' => session()->getId(),
-        'user_id' => auth()->id()
-    ]);
+// Authentication routes - sử dụng middleware riêng cho auth
+Route::middleware(['auth-ngrok'])->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
-
-// Test route without authentication
-Route::post('/test-simple', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Simple POST working',
-        'data' => request()->all(),
-        'timestamp' => now()
-    ]);
-});
-
-// Debug CSRF token
-Route::get('/debug-csrf', function () {
-    return response()->json([
-        'csrf_token' => csrf_token(),
-        'session_id' => session()->getId(),
-        'user_id' => auth()->id(),
-        'headers' => request()->headers->all()
-    ]);
-});
-
-// Refresh CSRF token
-Route::get('/refresh-csrf', function () {
-    return response()->json([
-        'csrf_token' => csrf_token()
-    ]);
-});
-
-// Test XMLHttpRequest
-Route::post('/test-xhr', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'XMLHttpRequest working',
-        'data' => request()->all(),
-        'timestamp' => now(),
-        'method' => request()->method(),
-        'headers' => request()->headers->all()
-    ]);
-});
-
-// Test route không cần authentication
-Route::post('/test-basic', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Basic POST working',
-        'data' => request()->all(),
-        'timestamp' => now()
-    ]);
-});
-
-// Test route với GET
-Route::get('/test-get', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'GET request working',
-        'timestamp' => now(),
-        'user_agent' => request()->header('User-Agent'),
-        'origin' => request()->header('Origin')
-    ]);
-});
-
-// Authentication routes
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // Group routes (for all authenticated users)

@@ -54,18 +54,12 @@ class QRScannerController extends Controller
             $tempPath = $image->store('temp', 'public');
             $fullPath = storage_path('app/public/' . $tempPath);
             
-            // Chuyển đổi ảnh sang định dạng PNG để tránh lỗi pixel type
-            $convertedPath = $this->convertImageToPng($fullPath);
-            
-            // Quét QR code từ ảnh đã chuyển đổi
-            $qrReader = new QrReader($convertedPath);
+            // Quét QR code từ ảnh
+            $qrReader = new QrReader($fullPath);
             $qrData = $qrReader->text();
             
             // Xóa ảnh tạm thời
             unlink($fullPath);
-            if ($convertedPath !== $fullPath) {
-                unlink($convertedPath);
-            }
             
             if (empty($qrData)) {
                 return response()->json([
@@ -143,12 +137,13 @@ class QRScannerController extends Controller
             'user_id' => auth()->id(),
             'headers' => $request->headers->all(),
             'content_type' => $request->header('Content-Type'),
-            'method' => $request->method()
+            'method' => $request->method(),
+            'origin' => $request->header('Origin'),
+            'user_agent' => $request->header('User-Agent')
         ]);
 
         $validator = Validator::make($request->all(), [
-            'qr_data' => 'required|string',
-            'group_id' => 'required|exists:groups,id'
+            'qr_data' => 'required|string'
         ]);
 
         if ($validator->fails()) {
@@ -157,26 +152,51 @@ class QRScannerController extends Controller
                 'request_data' => $request->all()
             ]);
             
-            return response()->json([
+            $response = response()->json([
                 'success' => false,
                 'message' => 'Dữ liệu không hợp lệ',
                 'errors' => $validator->errors()
             ], 400);
+            
+            return $this->addCorsHeaders($response, $request);
         }
 
         try {
             // Parse QR data (có thể là MSSV hoặc JSON)
             $qrData = $request->qr_data;
-            $groupId = $request->group_id;
+            
+            // Lấy group_id từ user hiện tại
+            $user = auth()->user();
+            $group = $user->group;
+            
+            if (!$group) {
+                $response = response()->json([
+                    'success' => false,
+                    'message' => 'Bạn chưa được phân vào nhóm nào'
+                ], 400);
+                
+                return $this->addCorsHeaders($response, $request);
+            }
+            
+            $groupId = $group->id;
             
             // Tìm student dựa trên QR data
             $student = $this->findStudentByQRData($qrData);
             
             if (!$student) {
-                return response()->json([
+                $response = response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy sinh viên với mã QR này'
                 ], 404);
+                
+                // Thêm CORS headers nếu cần
+                $origin = $request->header('Origin');
+                if ($origin && (str_contains($origin, 'ngrok') || str_contains($origin, 'localhost'))) {
+                    $response->headers->set('Access-Control-Allow-Origin', $origin);
+                    $response->headers->set('Access-Control-Allow-Credentials', 'true');
+                }
+                
+                return $response;
             }
 
             // Lưu thông tin quét vào database
@@ -215,7 +235,16 @@ class QRScannerController extends Controller
 
             // Nếu là AJAX request, trả về JSON
             if ($request->ajax() || $request->wantsJson() || $request->header('Accept') === 'application/json') {
-                return response()->json($responseData);
+                $response = response()->json($responseData);
+                
+                // Thêm CORS headers nếu cần
+                $origin = $request->header('Origin');
+                if ($origin && (str_contains($origin, 'ngrok') || str_contains($origin, 'localhost'))) {
+                    $response->headers->set('Access-Control-Allow-Origin', $origin);
+                    $response->headers->set('Access-Control-Allow-Credentials', 'true');
+                }
+                
+                return $response;
             }
             
             // Nếu là form submission, redirect với message
@@ -229,10 +258,19 @@ class QRScannerController extends Controller
                 'user_id' => auth()->id()
             ]);
 
-            return response()->json([
+            $response = response()->json([
                 'success' => false,
                 'message' => 'Có lỗi xảy ra khi xử lý QR code'
             ], 500);
+            
+            // Thêm CORS headers nếu cần
+            $origin = $request->header('Origin');
+            if ($origin && (str_contains($origin, 'ngrok') || str_contains($origin, 'localhost'))) {
+                $response->headers->set('Access-Control-Allow-Origin', $origin);
+                $response->headers->set('Access-Control-Allow-Credentials', 'true');
+            }
+            
+            return $response;
         }
     }
 
@@ -326,5 +364,18 @@ class QRScannerController extends Controller
 
         // Nếu không phải JSON, thử tìm trực tiếp bằng MSSV
         return Student::where('mssv', $qrData)->first();
+    }
+
+    /**
+     * Thêm CORS headers cho response
+     */
+    private function addCorsHeaders($response, $request)
+    {
+        $origin = $request->header('Origin');
+        if ($origin && (str_contains($origin, 'ngrok') || str_contains($origin, 'localhost'))) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+            $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        }
+        return $response;
     }
 }

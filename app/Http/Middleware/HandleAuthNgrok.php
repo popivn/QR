@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class HandleNgrok
+class HandleAuthNgrok
 {
     /**
      * Handle an incoming request.
@@ -22,7 +22,7 @@ class HandleNgrok
                    $request->isSecure();
         
         if ($isNgrok) {
-            // Cấu hình session cho ngrok
+            // Cấu hình session cho ngrok - ưu tiên bảo mật cho auth
             config([
                 'session.secure' => true,
                 'session.same_site' => 'none', // Cần none cho ngrok
@@ -30,12 +30,7 @@ class HandleNgrok
                 'session.domain' => null, // Không set domain để tránh conflict
             ]);
             
-            // Xử lý preflight OPTIONS request
-            if ($request->isMethod('OPTIONS')) {
-                $response = response('', 200);
-            } else {
-                $response = $next($request);
-            }
+            $response = $next($request);
             
             // Lấy origin từ request header
             $origin = $request->header('Origin');
@@ -49,25 +44,20 @@ class HandleNgrok
             // Nếu origin được phép, sử dụng nó, nếu không thì sử dụng wildcard
             $allowedOrigin = in_array($origin, $allowedOrigins) ? $origin : '*';
             
-            // Thêm CORS headers cho ngrok
+            // Thêm CORS headers cho ngrok - minimal cho auth
             $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-TOKEN, X-Requested-With, Accept, Cache-Control, Origin');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-TOKEN, X-Requested-With, Accept');
             $response->headers->set('Access-Control-Allow-Credentials', 'true');
-            $response->headers->set('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
+            $response->headers->set('Access-Control-Max-Age', '86400');
             $response->headers->set('Vary', 'Origin');
             
-            // Thêm security headers để tránh mixed content issues
-            $response->headers->set('X-Content-Type-Options', 'nosniff');
-            $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-            $response->headers->set('X-XSS-Protection', '1; mode=block');
-            
-            // Content Security Policy cho ngrok - relaxed for development
+            // Content Security Policy cho auth - relaxed for development
             $csp = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; " .
                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; " .
                    "style-src 'self' 'unsafe-inline' https: http: data:; " .
                    "img-src 'self' data: blob: https: http:; " .
-                   "connect-src 'self' " . $request->getSchemeAndHttpHost() . " " . $origin . " https: http: ws: wss:; " .
+                   "connect-src 'self' " . $request->getSchemeAndHttpHost() . " " . $origin . " https: http:; " .
                    "font-src 'self' https: http: data:; " .
                    "media-src 'self' blob: https: http:; " .
                    "object-src 'none'; " .
@@ -76,9 +66,6 @@ class HandleNgrok
                    "frame-ancestors 'self';";
             
             $response->headers->set('Content-Security-Policy', $csp);
-            
-            // Referrer Policy
-            $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
             
             return $response;
         }

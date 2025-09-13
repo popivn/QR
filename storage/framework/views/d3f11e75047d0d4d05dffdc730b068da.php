@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Đăng nhập - VTTU</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -21,15 +21,16 @@
             </div>
 
             <!-- Login Form -->
-            <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
-                @csrf
+            <form class="mt-8 space-y-6" action="<?php echo e(route('login')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
                 
-                @if($errors->any())
+                <?php if($errors->any()): ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
-                        {{ $errors->first() }}
+                        <?php echo e($errors->first()); ?>
+
                     </div>
-                @endif
+                <?php endif; ?>
 
                 <div class="space-y-4">
                     <div>
@@ -39,7 +40,7 @@
                         <input id="email" 
                                name="email" 
                                type="email" 
-                               value="{{ old('email') }}"
+                               value="<?php echo e(old('email')); ?>"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                placeholder="Nhập email của bạn"
                                required>
@@ -69,7 +70,7 @@
                 <div class="text-center">
                     <p class="text-sm text-gray-600">
                         Chưa có tài khoản? 
-                        <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        <a href="<?php echo e(route('register')); ?>" class="text-blue-600 hover:text-blue-800 font-medium">
                             Đăng ký ngay
                         </a>
                     </p>
@@ -82,3 +83,4 @@
     </div>
 </body>
 </html>
+<?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/auth/login.blade.php ENDPATH**/ ?>

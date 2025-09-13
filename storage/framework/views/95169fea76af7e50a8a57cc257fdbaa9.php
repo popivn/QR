@@ -1,13 +1,13 @@
-@extends('layouts.app')
 
-@section('title', 'Trang chủ - QR Scan System VTTU')
 
-@section('content')
+<?php $__env->startSection('title', 'Trang chủ - QR Scan System VTTU'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="text-center">
         <!-- Logo VTTU -->
         <div class="mb-8">
-            <img src="{{ asset('Logo-DH-Vo-Truong-Toan-VTTU-288x300.png') }}" 
+            <img src="<?php echo e(asset('Logo-DH-Vo-Truong-Toan-VTTU-288x300.png')); ?>" 
                  alt="Logo Đại học Võ Trường Toản" 
                  class="mx-auto h-64 w-auto md:h-80 lg:h-96 drop-shadow-lg hover:scale-105 transition-transform duration-300">
         </div>
@@ -24,39 +24,41 @@
         
         <!-- Các nút hành động -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            @auth
-                <a href="{{ route('group.index') }}" 
+            <?php if(auth()->guard()->check()): ?>
+                <a href="<?php echo e(route('group.index')); ?>" 
                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl">
                     <i class="fas fa-users"></i>
                     <span>Quản lý nhóm</span>
                 </a>
                 
-                @if(auth()->user()->isAdmin())
-                    <a href="{{ route('qr.index') }}" 
+                <?php if(auth()->user()->isAdmin()): ?>
+                    <a href="<?php echo e(route('qr.index')); ?>" 
                        class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl">
                         <i class="fas fa-qrcode"></i>
                         <span>QR Generator</span>
                     </a>
-                @endif
-            @else
-                <a href="{{ route('login') }}" 
+                <?php endif; ?>
+            <?php else: ?>
+                <a href="<?php echo e(route('login')); ?>" 
                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>Đăng nhập</span>
                 </a>
                 
-                <a href="{{ route('register') }}" 
+                <a href="<?php echo e(route('register')); ?>" 
                    class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl">
                     <i class="fas fa-user-plus"></i>
                     <span>Đăng ký</span>
                 </a>
-            @endauth
+            <?php endif; ?>
         </div>
         
         <!-- Thông tin bổ sung -->
         <div class="mt-12 text-sm text-gray-500">
-            <p>© {{ date('Y') }} Đại học Võ Trường Toản - Tất cả quyền được bảo lưu</p>
+            <p>© <?php echo e(date('Y')); ?> Đại học Võ Trường Toản - Tất cả quyền được bảo lưu</p>
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/welcome.blade.php ENDPATH**/ ?>

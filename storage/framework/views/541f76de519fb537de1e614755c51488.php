@@ -1,8 +1,8 @@
-@extends('layouts.app')
 
-@section('title', 'Thống kê QR Code - ' . $group->name)
 
-@push('styles')
+<?php $__env->startSection('title', 'Thống kê QR Code - ' . $group->name); ?>
+
+<?php $__env->startPush('styles'); ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Ensure Arial font for Vietnamese text */
@@ -15,15 +15,15 @@
             font-family: Arial, sans-serif;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('breadcrumb')
-    <li><a href="{{ route('group.index') }}" class="text-blue-600 hover:text-blue-800">Quản lý nhóm</a></li>
+<?php $__env->startSection('breadcrumb'); ?>
+    <li><a href="<?php echo e(route('group.index')); ?>" class="text-blue-600 hover:text-blue-800">Quản lý nhóm</a></li>
     <li><i class="fas fa-chevron-right text-gray-400"></i></li>
     <li class="text-gray-500">Thống kê QR Code</li>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('page-header')
+<?php $__env->startSection('page-header'); ?>
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">
@@ -31,25 +31,25 @@
                 Thống kê QR Code
             </h1>
             <p class="text-gray-600 mt-1">
-                Group: <span class="font-semibold text-blue-600">{{ $group->name }}</span>
+                Group: <span class="font-semibold text-blue-600"><?php echo e($group->name); ?></span>
             </p>
         </div>
         <div class="flex space-x-3">
-            <a href="{{ route('qr.scanner') }}" 
+            <a href="<?php echo e(route('qr.scanner')); ?>" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
                 <i class="fas fa-qrcode mr-2"></i>
                 Quét QR
             </a>
-            <a href="{{ route('group.index') }}" 
+            <a href="<?php echo e(route('group.index')); ?>" 
                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Quay lại
             </a>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div class="bg-white rounded-lg shadow-md p-6">
@@ -59,7 +59,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Tổng số lần quét</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ $totalScans }}</p>
+                    <p class="text-2xl font-semibold text-gray-900"><?php echo e($totalScans); ?></p>
                 </div>
             </div>
         </div>
@@ -71,7 +71,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Sinh viên đã quét</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ $uniqueStudents }}</p>
+                    <p class="text-2xl font-semibold text-gray-900"><?php echo e($uniqueStudents); ?></p>
                 </div>
             </div>
         </div>
@@ -84,7 +84,8 @@
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Trung bình/người</p>
                     <p class="text-2xl font-semibold text-gray-900">
-                        {{ $uniqueStudents > 0 ? round($totalScans / $uniqueStudents, 1) : 0 }}
+                        <?php echo e($uniqueStudents > 0 ? round($totalScans / $uniqueStudents, 1) : 0); ?>
+
                     </p>
                 </div>
             </div>
@@ -111,23 +112,23 @@
                 Hoạt động gần đây
             </h3>
             <div class="space-y-3 max-h-64 overflow-y-auto">
-                @forelse($statistics->take(10) as $stat)
+                <?php $__empty_1 = true; $__currentLoopData = $statistics->take(10); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
-                            <div class="font-medium text-gray-800">{{ $stat->student->name ?? 'N/A' }}</div>
-                            <div class="text-sm text-gray-600">MSSV: {{ $stat->student->mssv }}</div>
+                            <div class="font-medium text-gray-800"><?php echo e($stat->student->name ?? 'N/A'); ?></div>
+                            <div class="text-sm text-gray-600">MSSV: <?php echo e($stat->student->mssv); ?></div>
                         </div>
                         <div class="text-right">
-                            <div class="text-sm font-semibold text-blue-600">{{ $stat->scan_count }} lần</div>
-                            <div class="text-xs text-gray-500">{{ $stat->last_scanned_at->format('d/m H:i') }}</div>
+                            <div class="text-sm font-semibold text-blue-600"><?php echo e($stat->scan_count); ?> lần</div>
+                            <div class="text-xs text-gray-500"><?php echo e($stat->last_scanned_at->format('d/m H:i')); ?></div>
                         </div>
                     </div>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <div class="text-center text-gray-500 py-8">
                         <i class="fas fa-inbox text-3xl mb-2"></i>
                         <p>Chưa có dữ liệu quét</p>
                     </div>
-                @endforelse
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -173,7 +174,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($statistics as $stat)
+                    <?php $__empty_1 = true; $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -184,65 +185,69 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ $stat->student->name ?? 'N/A' }}
+                                            <?php echo e($stat->student->name ?? 'N/A'); ?>
+
                                         </div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $stat->student->mssv }}
+                                <?php echo e($stat->student->mssv); ?>
+
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $stat->student->class ?? 'N/A' }}
+                                <?php echo e($stat->student->class ?? 'N/A'); ?>
+
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    {{ $stat->scan_count >= 5 ? 'bg-green-100 text-green-800' : 
-                                       ($stat->scan_count >= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                    {{ $stat->scan_count }} lần
+                                    <?php echo e($stat->scan_count >= 5 ? 'bg-green-100 text-green-800' : 
+                                       ($stat->scan_count >= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')); ?>">
+                                    <?php echo e($stat->scan_count); ?> lần
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $stat->last_scanned_at->format('d/m/Y H:i:s') }}
+                                <?php echo e($stat->last_scanned_at->format('d/m/Y H:i:s')); ?>
+
                             </td>
                         </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center text-gray-500">
                                 <i class="fas fa-inbox text-3xl mb-2"></i>
                                 <p>Chưa có dữ liệu quét QR</p>
                             </td>
                         </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
-        @if($statistics->count() > 0)
+        <?php if($statistics->count() > 0): ?>
             <div class="mt-4 flex items-center justify-between text-sm text-gray-700">
                 <div>
-                    Hiển thị {{ $statistics->count() }} sinh viên
+                    Hiển thị <?php echo e($statistics->count()); ?> sinh viên
                 </div>
                 <div>
-                    Tổng: {{ $totalScans }} lần quét
+                    Tổng: <?php echo e($totalScans); ?> lần quét
                 </div>
             </div>
-        @endif
+        <?php endif; ?>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
     <script>
         // Prepare data in PHP first to avoid JavaScript parsing issues
-        const chartData = {!! json_encode($statistics->take(10)->map(function($stat) {
+        const chartData = <?php echo json_encode($statistics->take(10)->map(function($stat) {
             return [
                 'name' => $stat->student->name ?? 'N/A',
                 'mssv' => $stat->student->mssv,
                 'scan_count' => $stat->scan_count
             ];
-        })) !!};
+        })); ?>;
 
-        const statisticsData = {!! json_encode($statistics->map(function($stat) {
+        const statisticsData = <?php echo json_encode($statistics->map(function($stat) {
             return [
                 'name' => $stat->student->name ?? 'N/A',
                 'mssv' => $stat->student->mssv,
@@ -250,7 +255,7 @@
                 'scan_count' => $stat->scan_count,
                 'last_scanned' => $stat->last_scanned_at->format('d/m/Y H:i:s')
             ];
-        })) !!};
+        })); ?>;
 
         // Initialize scan count chart
         const ctx = document.getElementById('scanCountChart').getContext('2d');
@@ -325,7 +330,7 @@
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'qr_statistics_{{ $group->name }}_' + new Date().toISOString().split('T')[0] + '.csv');
+            link.setAttribute('download', 'qr_statistics_<?php echo e($group->name); ?>_' + new Date().toISOString().split('T')[0] + '.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -340,4 +345,5 @@
             }
         }, 30000);
     </script>
-@endpush        
+<?php $__env->stopPush(); ?>        
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/qr/statistics.blade.php ENDPATH**/ ?>
