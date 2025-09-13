@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'QR Scan System - VTTU')</title>
+    <title>@yield('title', 'FesSuport - VTTU - VTTU')</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -97,7 +97,7 @@
                 <div class="flex items-center">
                     <a href="{{ route('welcome') }}" class="flex items-center space-x-2">
                         <i class="fas fa-qrcode text-blue-600 text-xl"></i>
-                        <span class="font-bold text-gray-800 mobile-text-sm md:text-base">QR Scan System</span>
+                        <span class="font-bold text-gray-800 mobile-text-sm md:text-base">FesSuport - VTTU</span>
                     </a>
                 </div>
                 

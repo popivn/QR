@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chờ Phân Công - QR Scan System')
+@section('title', 'Chờ Phân Công - FesSuport - VTTU')
 
 @section('page-header')
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mobile-space-y-4">

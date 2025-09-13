@@ -1,6 +1,6 @@
 
 
-<?php $__env->startSection('title', 'Trang chủ - QR Scan System VTTU'); ?>
+<?php $__env->startSection('title', 'Trang chủ - FesSuport - VTTU VTTU'); ?>
 
 <?php $__env->startSection('content'); ?>
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -14,7 +14,7 @@
         
         <!-- Tiêu đề chính -->
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4">
-            QR Scan System
+            FesSuport - VTTU
         </h1>
         
         <!-- Phụ đề -->
@@ -25,7 +25,7 @@
         <!-- Các nút hành động -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <!-- Bảng xếp hạng - accessible to everyone -->
-            <a href="<?php echo e(route('qr.statistics')); ?>" 
+            <a href="<?php echo e(route('qr.leaderboard')); ?>" 
                class="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl">
                 <i class="fas fa-trophy"></i>
                 <span>Bảng xếp hạng</span>
