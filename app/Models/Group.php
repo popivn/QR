@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Group extends Model
 {
     protected $fillable = [
+        'festival_id',
         'name',
         'description'
     ];
@@ -29,5 +30,19 @@ class Group extends Model
         return $this->belongsToMany(Student::class, 'group_student')
                     ->withPivot('scan_count', 'last_scanned_at')
                     ->withTimestamps();
+    }
+
+    // Quan hệ với Festival
+    public function festival()
+    {
+        return $this->belongsTo(Festival::class);
+    }
+
+    /**
+     * Scope để lọc groups theo festival
+     */
+    public function scopeForFestival($query, $festivalId)
+    {
+        return $query->where('festival_id', $festivalId);
     }
 }

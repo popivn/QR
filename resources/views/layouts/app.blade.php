@@ -184,6 +184,32 @@
                 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-4">
+                    <!-- Festival Selector -->
+                    @auth
+                        <div class="relative">
+                            <select id="festival-selector" class="bg-white border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Chọn lễ hội</option>
+                                @if(auth()->user()->isAdmin())
+                                    @foreach(\App\Models\Festival::active()->get() as $festival)
+                                        <option value="{{ $festival->id }}" {{ session('current_festival_id') == $festival->id ? 'selected' : '' }}>
+                                            {{ $festival->name }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    @foreach(auth()->user()->getAdminFestivals() as $festival)
+                                        <option value="{{ $festival->id }}" {{ session('current_festival_id') == $festival->id ? 'selected' : '' }}>
+                                            {{ $festival->name }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        
+                        <a href="{{ route('festival.index') }}" class="text-gray-700 hover:text-blue-600 smooth-transition">
+                            <i class="fas fa-calendar-alt mr-1"></i>Lễ hội
+                        </a>
+                    @endauth
+                    
                     <!-- Bảng xếp hạng - accessible to everyone -->
                     <a href="{{ route('qr.leaderboard') }}" class="text-gray-700 hover:text-blue-600 smooth-transition">
                         <i class="fas fa-trophy mr-1"></i>Bảng xếp hạng
@@ -228,6 +254,33 @@
             <!-- Mobile Navigation Menu -->
             <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 py-4">
                 <div class="flex flex-col space-y-2">
+                    @auth
+                        <!-- Festival Selector for Mobile -->
+                        <div class="px-2 py-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Chọn lễ hội:</label>
+                            <select id="festival-selector-mobile" class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Chọn lễ hội</option>
+                                @if(auth()->user()->isAdmin())
+                                    @foreach(\App\Models\Festival::active()->get() as $festival)
+                                        <option value="{{ $festival->id }}" {{ session('current_festival_id') == $festival->id ? 'selected' : '' }}>
+                                            {{ $festival->name }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    @foreach(auth()->user()->getAdminFestivals() as $festival)
+                                        <option value="{{ $festival->id }}" {{ session('current_festival_id') == $festival->id ? 'selected' : '' }}>
+                                            {{ $festival->name }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        
+                        <a href="{{ route('festival.index') }}" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
+                            <i class="fas fa-calendar-alt mr-2"></i>Lễ hội
+                        </a>
+                    @endauth
+                    
                     <!-- Bảng xếp hạng - accessible to everyone -->
                     <a href="{{ route('qr.leaderboard') }}" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
                         <i class="fas fa-trophy mr-2"></i>Bảng xếp hạng
@@ -393,6 +446,36 @@
                     // Ensure form action uses HTTPS if current page is HTTPS
                     if (window.location.protocol === 'https:' && form.action.startsWith('http:')) {
                         form.action = form.action.replace('http:', 'https:');
+                    }
+                });
+            });
+
+            // Festival selector functionality
+            const festivalSelectors = document.querySelectorAll('#festival-selector, #festival-selector-mobile');
+            
+            festivalSelectors.forEach(function(selector) {
+                selector.addEventListener('change', function() {
+                    const festivalId = this.value;
+                    if (festivalId) {
+                        // Create form to submit festival selection
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ route("festival.select") }}';
+                        
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        
+                        const festivalInput = document.createElement('input');
+                        festivalInput.type = 'hidden';
+                        festivalInput.name = 'festival_id';
+                        festivalInput.value = festivalId;
+                        
+                        form.appendChild(csrfToken);
+                        form.appendChild(festivalInput);
+                        document.body.appendChild(form);
+                        form.submit();
                     }
                 });
             });

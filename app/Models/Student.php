@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     protected $fillable = [
+        'festival_id',
         'mssv',
         'holot',
         'ten',
@@ -33,5 +34,19 @@ class Student extends Model
         return $this->belongsToMany(Group::class, 'group_student')
                     ->withPivot('scan_count', 'last_scanned_at')
                     ->withTimestamps();
+    }
+
+    // Quan hệ với Festival
+    public function festival()
+    {
+        return $this->belongsTo(Festival::class);
+    }
+
+    /**
+     * Scope để lọc students theo festival
+     */
+    public function scopeForFestival($query, $festivalId)
+    {
+        return $query->where('festival_id', $festivalId);
     }
 }

@@ -4,23 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\Festival;
+use App\Models\AuditLog;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Endroid\QrCode\QrCode as EndroidQrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class QRController extends Controller
 {
     public function index()
     {
-        return view('qr.index');
+        $user = Auth::user();
+        $festivals = $user->isAdmin() ? Festival::active()->get() : $user->getAdminFestivals();
+        
+        return view('qr.index', compact('festivals'));
     }
 
     public function uploadExcel(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'excel_file' => 'required|file|mimes:xlsx,xls|max:10240'
+            'excel_file' => 'required|file|mimes:xlsx,xls|max:10240',
+            'festival_id' => 'required|exists:festivals,id'
         ]);
 
         if ($validator->fails()) {
@@ -30,6 +37,15 @@ class QRController extends Controller
         }
 
         try {
+            $festivalId = $request->festival_id;
+            $festival = Festival::findOrFail($festivalId);
+            $user = Auth::user();
+            
+            // Kiểm tra quyền truy cập festival
+            if (!$user->isAdmin() && !$festival->isAdmin($user->id)) {
+                return redirect()->back()->with('error', 'Bạn không có quyền truy cập lễ hội này');
+            }
+
             $file = $request->file('excel_file');
             $spreadsheet = IOFactory::load($file->getPathname());
             $worksheet = $spreadsheet->getActiveSheet();
@@ -53,11 +69,11 @@ class QRController extends Controller
                     continue;
                 }
 
-                // Kiểm tra xem MSSV đã tồn tại chưa
-                $existingStudent = Student::where('mssv', $mssv)->first();
+                // Kiểm tra xem MSSV đã tồn tại trong festival này chưa
+                $existingStudent = Student::where('mssv', $mssv)->where('festival_id', $festivalId)->first();
                 
                 if ($existingStudent) {
-                    $errors[] = "MSSV {$mssv} đã tồn tại";
+                    $errors[] = "MSSV {$mssv} đã tồn tại trong lễ hội này";
                     continue;
                 }
 
@@ -76,10 +92,11 @@ class QRController extends Controller
                 }
 
                 // Tạo QR code
-                $qrCodePath = $this->generateQRCode($mssv);
+                $qrCodePath = $this->generateQRCode($mssv, $festivalId);
                 
                 // Lưu thông tin sinh viên
-                Student::create([
+                $student = Student::create([
+                    'festival_id' => $festivalId,
                     'mssv' => $mssv,
                     'holot' => $holot ?: null,
                     'ten' => $ten ?: null,
@@ -88,6 +105,16 @@ class QRController extends Controller
                     'name' => trim($holot . ' ' . $ten), // Tạo full name từ holot + ten
                     'qr_code_path' => $qrCodePath
                 ]);
+
+                // Log audit
+                AuditLog::log(
+                    'CREATE',
+                    'Student',
+                    $student->id,
+                    "Tạo sinh viên từ Excel: {$mssv}",
+                    ['mssv' => $mssv, 'festival_id' => $festivalId],
+                    $festivalId
+                );
 
                 $processedCount++;
             }
@@ -108,23 +135,25 @@ class QRController extends Controller
     public function createManual(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'mssv' => 'required|string|max:20|unique:students,mssv',
+            'mssv' => 'required|string|max:20',
             'holot' => 'nullable|string|max:255',
             'ten' => 'nullable|string|max:255',
             'gioi' => 'nullable|string|max:10',
             'ngay_sinh' => 'nullable|date',
             'name' => 'nullable|string|max:255',
-            'class' => 'nullable|string|max:100'
+            'class' => 'nullable|string|max:100',
+            'festival_id' => 'required|exists:festivals,id'
         ], [
             'mssv.required' => 'MSSV là bắt buộc',
-            'mssv.unique' => 'MSSV đã tồn tại',
             'mssv.max' => 'MSSV không được quá 20 ký tự',
             'holot.max' => 'Họ lót không được quá 255 ký tự',
             'ten.max' => 'Tên không được quá 255 ký tự',
             'gioi.max' => 'Giới tính không được quá 10 ký tự',
             'ngay_sinh.date' => 'Ngày sinh không hợp lệ',
             'name.max' => 'Tên không được quá 255 ký tự',
-            'class.max' => 'Lớp không được quá 100 ký tự'
+            'class.max' => 'Lớp không được quá 100 ký tự',
+            'festival_id.required' => 'Vui lòng chọn lễ hội',
+            'festival_id.exists' => 'Lễ hội không tồn tại'
         ]);
 
         if ($validator->fails()) {
@@ -134,6 +163,21 @@ class QRController extends Controller
         }
 
         try {
+            $festivalId = $request->festival_id;
+            $festival = Festival::findOrFail($festivalId);
+            $user = Auth::user();
+            
+            // Kiểm tra quyền truy cập festival
+            if (!$user->isAdmin() && !$festival->isAdmin($user->id)) {
+                return redirect()->back()->with('error', 'Bạn không có quyền truy cập lễ hội này');
+            }
+
+            // Kiểm tra MSSV đã tồn tại trong festival này chưa
+            $existingStudent = Student::where('mssv', $request->mssv)->where('festival_id', $festivalId)->first();
+            if ($existingStudent) {
+                return redirect()->back()->with('error', 'MSSV đã tồn tại trong lễ hội này');
+            }
+
             $mssv = trim($request->mssv);
             $holot = trim($request->holot);
             $ten = trim($request->ten);
@@ -143,10 +187,11 @@ class QRController extends Controller
             $class = trim($request->class);
 
             // Tạo QR code
-            $qrCodePath = $this->generateQRCode($mssv);
+            $qrCodePath = $this->generateQRCode($mssv, $festivalId);
             
             // Lưu thông tin sinh viên
-            Student::create([
+            $student = Student::create([
+                'festival_id' => $festivalId,
                 'mssv' => $mssv,
                 'holot' => $holot ?: null,
                 'ten' => $ten ?: null,
@@ -157,6 +202,16 @@ class QRController extends Controller
                 'qr_code_path' => $qrCodePath
             ]);
 
+            // Log audit
+            AuditLog::log(
+                'CREATE',
+                'Student',
+                $student->id,
+                "Tạo sinh viên thủ công: {$mssv}",
+                ['mssv' => $mssv, 'festival_id' => $festivalId],
+                $festivalId
+            );
+
             return redirect()->back()->with('success', "Đã tạo thành công QR code cho sinh viên {$mssv}");
 
         } catch (\Exception $e) {
@@ -166,7 +221,7 @@ class QRController extends Controller
         }
     }
 
-    private function generateQRCode($mssv)
+    private function generateQRCode($mssv, $festivalId)
     {
         // Tạo thư mục qr-codes nếu chưa có
         $qrDir = 'qr-codes';
@@ -177,6 +232,7 @@ class QRController extends Controller
         // Tạo QR code với format JSON để scanner có thể parse dễ dàng
         $qrData = json_encode([
             'mssv' => $mssv,
+            'festival_id' => $festivalId,
             'type' => 'student',
             'timestamp' => now()->toISOString()
         ]);
@@ -190,7 +246,7 @@ class QRController extends Controller
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
 
-        $qrCodePath = $qrDir . '/' . $mssv . '.png';
+        $qrCodePath = $qrDir . '/' . $festivalId . '_' . $mssv . '.png';
         
         // Lưu QR code vào storage
         Storage::put($qrCodePath, $result->getString());
@@ -198,21 +254,41 @@ class QRController extends Controller
         return $qrCodePath;
     }
 
-    public function listStudents()
+    public function listStudents(Request $request)
     {
-        $students = Student::orderBy('created_at', 'desc')->paginate(20);
+        $user = Auth::user();
+        $festivalId = $request->festival_id ?? session('current_festival_id');
         
-        // Tính toán thống kê chính xác từ toàn bộ database
-        $totalStudents = Student::count();
-        $studentsWithQR = Student::whereNotNull('qr_code_path')->count();
-        $studentsWithoutQR = Student::whereNull('qr_code_path')->count();
+        if (!$festivalId) {
+            return redirect()->route('festival.index')->with('error', 'Vui lòng chọn lễ hội trước');
+        }
         
-        return view('qr.list', compact('students', 'totalStudents', 'studentsWithQR', 'studentsWithoutQR'));
+        $festival = Festival::findOrFail($festivalId);
+        
+        // Kiểm tra quyền truy cập
+        if (!$user->isAdmin() && !$festival->isAdmin($user->id)) {
+            abort(403, 'Bạn không có quyền truy cập lễ hội này');
+        }
+        
+        $students = Student::where('festival_id', $festivalId)->orderBy('created_at', 'desc')->paginate(20);
+        
+        // Tính toán thống kê chính xác từ festival này
+        $totalStudents = Student::where('festival_id', $festivalId)->count();
+        $studentsWithQR = Student::where('festival_id', $festivalId)->whereNotNull('qr_code_path')->count();
+        $studentsWithoutQR = Student::where('festival_id', $festivalId)->whereNull('qr_code_path')->count();
+        
+        return view('qr.list', compact('students', 'totalStudents', 'studentsWithQR', 'studentsWithoutQR', 'festival'));
     }
 
     public function downloadQR($id)
     {
         $student = Student::findOrFail($id);
+        $user = Auth::user();
+        
+        // Kiểm tra quyền truy cập
+        if (!$user->isAdmin() && !$student->festival->isAdmin($user->id)) {
+            abort(403, 'Bạn không có quyền truy cập sinh viên này');
+        }
         
         if (!$student->qr_code_path || !Storage::exists($student->qr_code_path)) {
             return redirect()->back()->with('error', 'File QR code không tồn tại');
@@ -228,16 +304,30 @@ class QRController extends Controller
         ]);
     }
 
-    public function downloadAllQR()
+    public function downloadAllQR(Request $request)
     {
-        $students = Student::whereNotNull('qr_code_path')->get();
+        $user = Auth::user();
+        $festivalId = $request->festival_id ?? session('current_festival_id');
+        
+        if (!$festivalId) {
+            return redirect()->route('festival.index')->with('error', 'Vui lòng chọn lễ hội trước');
+        }
+        
+        $festival = Festival::findOrFail($festivalId);
+        
+        // Kiểm tra quyền truy cập
+        if (!$user->isAdmin() && !$festival->isAdmin($user->id)) {
+            abort(403, 'Bạn không có quyền truy cập lễ hội này');
+        }
+        
+        $students = Student::where('festival_id', $festivalId)->whereNotNull('qr_code_path')->get();
         
         if ($students->isEmpty()) {
             return redirect()->back()->with('error', 'Không có QR code nào để tải xuống');
         }
 
         $zip = new \ZipArchive();
-        $zipFileName = 'qr_codes_' . date('Y-m-d_H-i-s') . '.zip';
+        $zipFileName = 'qr_codes_' . $festival->name . '_' . date('Y-m-d_H-i-s') . '.zip';
         $zipPath = storage_path('app/temp/' . $zipFileName);
         
         // Tạo thư mục temp nếu chưa có

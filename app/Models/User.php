@@ -55,10 +55,28 @@ class User extends Authenticatable
         return $this->belongsTo(Group::class);
     }
 
+    // Quan hệ với Festivals mà user đã tạo (admin)
+    public function createdFestivals()
+    {
+        return $this->hasMany(Festival::class, 'created_by');
+    }
+
     // Kiểm tra quyền admin
     public function isAdmin()
     {
         return $this->role_id == 1;
+    }
+
+    // Kiểm tra xem user có phải admin của festival nào đó không
+    public function isFestivalAdmin($festivalId)
+    {
+        return $this->createdFestivals()->where('id', $festivalId)->exists();
+    }
+
+    // Lấy danh sách festival mà user là admin
+    public function getAdminFestivals()
+    {
+        return $this->createdFestivals()->active()->get();
     }
 
     /**

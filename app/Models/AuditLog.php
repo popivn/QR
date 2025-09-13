@@ -9,6 +9,7 @@ class AuditLog extends Model
 {
     protected $fillable = [
         'user_id',
+        'festival_id',
         'ip_address',
         'action',
         'resource_type',
@@ -30,15 +31,24 @@ class AuditLog extends Model
     }
 
     /**
+     * Quan hệ với Festival
+     */
+    public function festival(): BelongsTo
+    {
+        return $this->belongsTo(Festival::class);
+    }
+
+    /**
      * Tạo audit log entry
      */
-    public static function log(string $action, ?string $resourceType = null, ?int $resourceId = null, ?string $description = null, array $metadata = []): self
+    public static function log(string $action, ?string $resourceType = null, ?int $resourceId = null, ?string $description = null, array $metadata = [], ?int $festivalId = null): self
     {
         $user = auth()->user();
         $request = request();
 
         return self::create([
             'user_id' => $user ? $user->id : null,
+            'festival_id' => $festivalId,
             'ip_address' => $user ? null : $request->ip(), // Chỉ lưu IP nếu chưa đăng nhập
             'action' => $action,
             'resource_type' => $resourceType,
@@ -83,5 +93,13 @@ class AuditLog extends Model
     public function scopeForIpAddress($query, $ipAddress)
     {
         return $query->where('ip_address', $ipAddress);
+    }
+
+    /**
+     * Scope để lọc theo festival
+     */
+    public function scopeForFestival($query, $festivalId)
+    {
+        return $query->where('festival_id', $festivalId);
     }
 }

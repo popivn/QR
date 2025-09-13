@@ -7,6 +7,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QRScannerController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\FestivalController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +33,21 @@ Route::middleware(['audit'])->group(function () {
     Route::get('/qr/statistics/{groupId?}', [QRScannerController::class, 'statistics'])->name('qr.statistics');
     Route::get('/qr/leaderboard', [QRScannerController::class, 'leaderboard'])->name('qr.leaderboard');
     Route::get('/qr/api/statistics/{groupId}', [QRScannerController::class, 'getStatistics'])->name('qr.api.statistics');
+});
+
+// Festival routes (for all authenticated users)
+Route::middleware(['auth', 'audit'])->group(function () {
+    Route::get('/festival', [FestivalController::class, 'index'])->name('festival.index');
+    Route::get('/festival/create', [FestivalController::class, 'create'])->name('festival.create');
+    Route::post('/festival', [FestivalController::class, 'store'])->name('festival.store');
+    Route::post('/festival/select', [FestivalController::class, 'select'])->name('festival.select');
+    Route::get('/festival/api/list', [FestivalController::class, 'getFestivals'])->name('festival.api.list');
+    
+    // Festival routes with parameter
+    Route::get('/festival/{id}', [FestivalController::class, 'show'])->name('festival.show');
+    Route::get('/festival/{id}/edit', [FestivalController::class, 'edit'])->name('festival.edit');
+    Route::put('/festival/{id}', [FestivalController::class, 'update'])->name('festival.update');
+    Route::delete('/festival/{id}', [FestivalController::class, 'destroy'])->name('festival.destroy');
 });
 
 // Group routes (for all authenticated users)
