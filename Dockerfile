@@ -31,7 +31,6 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www
 
-
 # Create appuser
 RUN groupadd -g 1000 appuser && useradd -u 1000 -ms /bin/bash -g appuser appuser
 
@@ -41,11 +40,13 @@ RUN mkdir -p bootstrap/cache \
     && mkdir -p storage/logs \
     && mkdir -p storage/app/tmp_bulk_pdfs
 
-# Set proper permissions
+# Set proper permissions (run as root before switching user)
 RUN chown -R appuser:appuser /var/www \
     && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache \
-    && chmod +x /var/www/artisan
+    && chmod -R 755 /var/www/bootstrap/cache
+
+# Make artisan executable if it exists
+RUN if [ -f /var/www/artisan ]; then chmod +x /var/www/artisan; fi
 
 # Switch to non-root user
 USER appuser

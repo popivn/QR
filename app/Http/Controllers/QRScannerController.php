@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Group;
 use App\Models\GroupStudent;
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Zxing\QrReader;
@@ -83,6 +84,24 @@ class QRScannerController extends Controller
             
             // Lấy thông tin group
             $group = Group::find($groupId);
+            
+            // Ghi audit log chi tiết
+            AuditLog::log(
+                action: 'qr_scan_image',
+                resourceType: 'student',
+                resourceId: $student->id,
+                description: "Quét QR code từ ảnh cho sinh viên {$student->mssv} - {$student->name}",
+                metadata: [
+                    'student_mssv' => $student->mssv,
+                    'student_name' => $student->name,
+                    'student_class' => $student->class,
+                    'group_id' => $groupId,
+                    'group_name' => $group->name,
+                    'scan_count' => $groupStudent->scan_count,
+                    'qr_data' => $qrData,
+                    'scan_method' => 'image_upload'
+                ]
+            );
             
             Log::info('QR Code scanned from image', [
                 'student_id' => $student->id,
@@ -204,6 +223,24 @@ class QRScannerController extends Controller
             
             // Lấy thông tin group
             $group = Group::find($groupId);
+            
+            // Ghi audit log chi tiết
+            AuditLog::log(
+                action: 'qr_scan_manual',
+                resourceType: 'student',
+                resourceId: $student->id,
+                description: "Quét QR code thủ công cho sinh viên {$student->mssv} - {$student->name}",
+                metadata: [
+                    'student_mssv' => $student->mssv,
+                    'student_name' => $student->name,
+                    'student_class' => $student->class,
+                    'group_id' => $groupId,
+                    'group_name' => $group->name,
+                    'scan_count' => $groupStudent->scan_count,
+                    'qr_data' => $qrData,
+                    'scan_method' => 'manual_input'
+                ]
+            );
             
             Log::info('QR Code scanned', [
                 'student_id' => $student->id,

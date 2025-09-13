@@ -116,6 +116,9 @@
                             <a href="<?php echo e(route('qr.index')); ?>" class="text-gray-700 hover:text-blue-600 smooth-transition">
                                 <i class="fas fa-qrcode mr-1"></i>QR Generator
                             </a>
+                            <a href="<?php echo e(route('audit.index')); ?>" class="text-gray-700 hover:text-blue-600 smooth-transition">
+                                <i class="fas fa-clipboard-list mr-1"></i>Audit Logs
+                            </a>
                         <?php endif; ?>
                         <form method="POST" action="<?php echo e(route('logout')); ?>" class="inline" id="logout-form">
                             <?php echo csrf_field(); ?>
@@ -156,6 +159,9 @@
                         <?php if(auth()->user()->isAdmin()): ?>
                             <a href="<?php echo e(route('qr.index')); ?>" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
                                 <i class="fas fa-qrcode mr-2"></i>QR Generator
+                            </a>
+                            <a href="<?php echo e(route('audit.index')); ?>" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
+                                <i class="fas fa-clipboard-list mr-2"></i>Audit Logs
                             </a>
                         <?php endif; ?>
                         <form method="POST" action="<?php echo e(route('logout')); ?>" class="inline" id="logout-form-mobile">

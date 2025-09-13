@@ -5,6 +5,7 @@ use App\Http\Controllers\QRController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QRScannerController;
+use App\Http\Controllers\AuditLogController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,12 +24,14 @@ Route::middleware(['auth-ngrok'])->group(function () {
 
 
 // Public routes - accessible to everyone
-Route::get('/qr/statistics/{groupId?}', [QRScannerController::class, 'statistics'])->name('qr.statistics');
-Route::get('/qr/leaderboard', [QRScannerController::class, 'leaderboard'])->name('qr.leaderboard');
-Route::get('/qr/api/statistics/{groupId}', [QRScannerController::class, 'getStatistics'])->name('qr.api.statistics');
+Route::middleware(['audit'])->group(function () {
+    Route::get('/qr/statistics/{groupId?}', [QRScannerController::class, 'statistics'])->name('qr.statistics');
+    Route::get('/qr/leaderboard', [QRScannerController::class, 'leaderboard'])->name('qr.leaderboard');
+    Route::get('/qr/api/statistics/{groupId}', [QRScannerController::class, 'getStatistics'])->name('qr.api.statistics');
+});
 
 // Group routes (for all authenticated users)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'audit'])->group(function () {
     Route::get('/group', [GroupController::class, 'index'])->name('group.index');
     
     // QR Scanner routes (for all authenticated users)
@@ -38,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Admin only routes (role_id = 1)
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin', 'audit'])->group(function () {
     // QR Code routes
     Route::get('/qr', [QRController::class, 'index'])->name('qr.index');
     Route::post('/qr/upload', [QRController::class, 'uploadExcel'])->name('qr.upload');
@@ -59,4 +62,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/group/{id}/edit', [GroupController::class, 'edit'])->name('group.edit');
     Route::put('/group/{id}', [GroupController::class, 'update'])->name('group.update');
     Route::delete('/group/{id}', [GroupController::class, 'destroy'])->name('group.destroy');
+    
+    // Audit Log routes (chỉ admin mới xem được)
+    Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
+    Route::get('/audit/{auditLog}', [AuditLogController::class, 'show'])->name('audit.show');
+    Route::get('/audit-statistics', [AuditLogController::class, 'statistics'])->name('audit.statistics');
+    Route::get('/audit-export', [AuditLogController::class, 'export'])->name('audit.export');
 });

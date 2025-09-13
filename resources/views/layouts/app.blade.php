@@ -116,6 +116,9 @@
                             <a href="{{ route('qr.index') }}" class="text-gray-700 hover:text-blue-600 smooth-transition">
                                 <i class="fas fa-qrcode mr-1"></i>QR Generator
                             </a>
+                            <a href="{{ route('audit.index') }}" class="text-gray-700 hover:text-blue-600 smooth-transition">
+                                <i class="fas fa-clipboard-list mr-1"></i>Audit Logs
+                            </a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}" class="inline" id="logout-form">
                             @csrf
@@ -156,6 +159,9 @@
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('qr.index') }}" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
                                 <i class="fas fa-qrcode mr-2"></i>QR Generator
+                            </a>
+                            <a href="{{ route('audit.index') }}" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
+                                <i class="fas fa-clipboard-list mr-2"></i>Audit Logs
                             </a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}" class="inline" id="logout-form-mobile">
