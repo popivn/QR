@@ -21,6 +21,9 @@ Route::middleware(['auth-ngrok'])->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Verify login route với username
+    Route::get('/verify_login', [AuthController::class, 'verifyLogin'])->name('verify_login');
 });
 
 
@@ -46,6 +49,7 @@ Route::middleware(['auth', 'role:admin', 'audit'])->group(function () {
     // QR Code routes
     Route::get('/qr', [QRController::class, 'index'])->name('qr.index');
     Route::post('/qr/upload', [QRController::class, 'uploadExcel'])->name('qr.upload');
+    Route::post('/qr/create-manual', [QRController::class, 'createManual'])->name('qr.create-manual');
     Route::get('/qr/list', [QRController::class, 'listStudents'])->name('qr.list');
     Route::get('/qr/download/{id}', [QRController::class, 'downloadQR'])->name('qr.download');
     Route::get('/qr/download-all', [QRController::class, 'downloadAllQR'])->name('qr.download-all');

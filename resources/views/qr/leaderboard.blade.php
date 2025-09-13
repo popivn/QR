@@ -4,181 +4,6 @@
 
 @push('styles')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Ensure Arial font for Vietnamese text */
-        body, table, th, td, .font-medium, .text-sm, .text-xs {
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
-        }
-        
-        .leaderboard-container {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .leaderboard-header {
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 24px;
-        }
-        
-        .rank-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 18px;
-            color: white;
-            margin-right: 16px;
-        }
-        
-        .rank-1 { background: #fbbf24; }
-        .rank-2 { background: #9ca3af; }
-        .rank-3 { background: #d97706; }
-        .rank-other { background: #6b7280; }
-        
-        .group-item {
-            display: flex;
-            align-items: center;
-            padding: 20px 24px;
-            border-bottom: 1px solid #f1f5f9;
-            transition: background-color 0.2s ease;
-        }
-        
-        .group-item:hover {
-            background-color: #f8fafc;
-        }
-        
-        .group-item:last-child {
-            border-bottom: none;
-        }
-        
-        .group-info {
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
-        
-        .group-details h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1e293b;
-            margin: 0 0 4px 0;
-        }
-        
-        .group-details p {
-            font-size: 14px;
-            color: #64748b;
-            margin: 0;
-        }
-        
-        .group-stats {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-        
-        .stat-item {
-            text-align: center;
-            min-width: 80px;
-        }
-        
-        .stat-number {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #64748b;
-            margin: 4px 0 0 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .action-btn {
-            background: #3b82f6;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        
-        .action-btn:hover {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .stats-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-        
-        .overview-card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .overview-card h3 {
-            font-size: 14px;
-            color: #64748b;
-            margin: 0 0 8px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .overview-card .number {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0;
-        }
-        
-        .chart-container {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-top: 32px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #64748b;
-        }
-        
-        .empty-state i {
-            font-size: 64px;
-            color: #cbd5e1;
-            margin-bottom: 16px;
-        }
-        
-        .empty-state h3 {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 0 0 8px 0;
-        }
-        
-        .empty-state p {
-            font-size: 16px;
-            margin: 0;
-        }
-    </style>
 @endpush
 
 @section('breadcrumb')
@@ -188,26 +13,26 @@
 @endsection
 
 @section('page-header')
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">
+            <h1 class="text-xl lg:text-2xl font-bold text-gray-800">
                 <i class="fas fa-trophy mr-2 text-yellow-500"></i>
                 Bảng xếp hạng các nhóm
             </h1>
-            <p class="text-gray-600 mt-1">
+            <p class="text-gray-600 mt-1 text-sm lg:text-base">
                 Xếp hạng dựa trên số lượng sinh viên tham gia thống nhất
             </p>
         </div>
-        <div class="flex space-x-3">
+        <div class="flex flex-col sm:flex-row gap-2 lg:gap-3">
             @auth
                 <a href="{{ route('qr.scanner') }}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center">
                     <i class="fas fa-qrcode mr-2"></i>
                     Quét QR
                 </a>
             @endauth
             <a href="{{ route('group.index') }}" 
-               class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center">
+               class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center justify-center">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Quay lại
             </a>
@@ -216,29 +41,30 @@
 @endsection
 
 @section('content')
-<div class="space-y-8">
+<div class="space-y-6 lg:space-y-8">
     <!-- Tổng quan thống kê -->
-    <div class="stats-overview">
-        <div class="overview-card">
-            <h3>Tổng số nhóm</h3>
-            <p class="number">{{ $leaderboard->count() }}</p>
+    <div class="grid grid-cols-2 lg:grid-cols-2 gap-3 lg:gap-5 mb-6 lg:mb-8">
+        <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
+            <h3 class="text-xs lg:text-sm text-gray-500 uppercase tracking-wide mb-2 lg:mb-3">Tổng số nhóm</h3>
+            <p class="text-2xl lg:text-3xl font-bold text-gray-800">{{ $leaderboard->count() }}</p>
         </div>
         
-        <div class="overview-card">
-            <h3>Sinh viên tham gia</h3>
-            <p class="number">{{ number_format($totalSystemStudents) }}</p>
+        <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
+            <h3 class="text-xs lg:text-sm text-gray-500 uppercase tracking-wide mb-2 lg:mb-3">Sinh viên tham gia</h3>
+            <p class="text-2xl lg:text-3xl font-bold text-gray-800">{{ number_format($totalSystemStudents) }}</p>
         </div>
     </div>
 
     <!-- Bảng xếp hạng -->
-    <div class="leaderboard-container">
-        <div class="leaderboard-header">
-            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                <i class="fas fa-trophy mr-3 text-yellow-500"></i>
-                Bảng xếp hạng các nhóm
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 border-b border-gray-200 p-4 lg:p-6">
+            <h2 class="text-lg lg:text-2xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-trophy mr-2 lg:mr-3 text-yellow-500"></i>
+                <span class="hidden sm:inline">Bảng xếp hạng các nhóm</span>
+                <span class="sm:hidden">Xếp hạng</span>
             </h2>
-            <p class="text-gray-600 mt-2">
-                Cập nhật lần cuối: {{ now()->format('d/m/Y H:i:s') }}
+            <p class="text-gray-600 mt-2 text-xs lg:text-sm">
+                Cập nhật: {{ now()->format('d/m/Y H:i') }}
             </p>
         </div>
         
@@ -248,10 +74,15 @@
                     $rank = $index + 1;
                 @endphp
                 
-                <div class="group-item">
-                    <div class="group-info">
+                <div class="flex flex-col lg:flex-row lg:items-center p-4 lg:p-5 border-b border-gray-100 hover:bg-gray-50 transition-colors last:border-b-0">
+                    <div class="flex items-center mb-3 lg:mb-0 flex-1">
                         <!-- Rank badge -->
-                        <div class="rank-badge rank-{{ $rank <= 3 ? $rank : 'other' }}">
+                        <div class="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-lg lg:rounded-xl font-bold text-white text-base lg:text-lg mr-3 lg:mr-4 flex-shrink-0
+                            @if($rank == 1) bg-yellow-400
+                            @elseif($rank == 2) bg-gray-400
+                            @elseif($rank == 3) bg-orange-600
+                            @else bg-gray-500
+                            @endif">
                             @if($rank <= 3)
                                 <i class="fas fa-medal"></i>
                             @else
@@ -260,48 +91,49 @@
                         </div>
                         
                         <!-- Group details -->
-                        <div class="group-details">
-                            <h3>{{ $group->name }}</h3>
+                        <div class="flex-1">
+                            <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-1 leading-tight">{{ $group->name }}</h3>
                             @if($group->description)
-                                <p>{{ $group->description }}</p>
+                                <p class="text-xs lg:text-sm text-gray-600 leading-relaxed">{{ $group->description }}</p>
                             @endif
                         </div>
                     </div>
                     
                     <!-- Stats -->
-                    <div class="group-stats">
-                        <div class="stat-item">
-                            <p class="stat-number">{{ number_format($group->unique_students) }}</p>
-                            <p class="stat-label">Sinh viên</p>
+                    <div class="flex items-center justify-between lg:justify-end gap-4">
+                        <div class="text-center min-w-0 lg:min-w-20">
+                            <p class="text-lg lg:text-2xl font-bold text-gray-800">{{ number_format($group->unique_students) }}</p>
+                            <p class="text-xs lg:text-xs text-gray-500 uppercase tracking-wide">Sinh viên</p>
                         </div>
                         
-                        <a href="{{ route('qr.statistics', $group->id) }}" class="action-btn">
-                            <i class="fas fa-chart-bar mr-2"></i>
+                        <a href="{{ route('qr.statistics', $group->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors whitespace-nowrap">
+                            <i class="fas fa-chart-bar mr-1 lg:mr-2"></i>
                             Chi tiết
                         </a>
                     </div>
                 </div>
             @endforeach
         @else
-            <div class="empty-state">
-                <i class="fas fa-trophy"></i>
-                <h3>Chưa có dữ liệu xếp hạng</h3>
-                <p>Chưa có nhóm nào tham gia quét QR code</p>
+            <div class="text-center py-12 lg:py-16 px-4 text-gray-500">
+                <i class="fas fa-trophy text-4xl lg:text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg lg:text-xl font-semibold mb-2">Chưa có dữ liệu xếp hạng</h3>
+                <p class="text-sm lg:text-base">Chưa có nhóm nào tham gia quét QR code</p>
             </div>
         @endif
     </div>
 
     <!-- Biểu đồ so sánh nhỏ -->
     @if($leaderboard->count() > 0)
-        <div class="chart-container">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+        <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm">
+            <h3 class="text-base lg:text-lg font-semibold text-gray-700 mb-3 lg:mb-4 flex items-center">
                 <i class="fas fa-chart-pie mr-2 text-blue-600"></i>
-                Biểu đồ so sánh
+                <span class="hidden sm:inline">Biểu đồ so sánh</span>
+                <span class="sm:hidden">Biểu đồ</span>
             </h3>
             <div>
-                <h4 class="text-sm font-medium text-gray-600 mb-3">Sinh viên tham gia</h4>
-                <div style="height: 200px; width: 100%;">
-                    <canvas id="studentChart" style="width: 100%;"></canvas>
+                <h4 class="text-xs lg:text-sm font-medium text-gray-600 mb-2 lg:mb-3">Sinh viên tham gia</h4>
+                <div class="h-44 lg:h-48 w-full">
+                    <canvas id="studentChart" class="w-full h-full"></canvas>
                 </div>
             </div>
         </div>

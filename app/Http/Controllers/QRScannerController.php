@@ -75,8 +75,8 @@ class QRScannerController extends Controller
             if (!$student) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy sinh viên với mã QR này'
-                ], 404);
+                    'message' => 'MSSV Không Tồn Tại'
+                ], 400);
             }
 
             // Lưu thông tin quét vào database
@@ -205,8 +205,8 @@ class QRScannerController extends Controller
             if (!$student) {
                 $response = response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy sinh viên với mã QR này'
-                ], 404);
+                    'message' => 'MSSV Không Tồn Tại'
+                ], 400);
                 
                 // Thêm CORS headers nếu cần
                 $origin = $request->header('Origin');
@@ -442,14 +442,30 @@ class QRScannerController extends Controller
      */
     private function findStudentByQRData($qrData)
     {
+        Log::info('Finding student by QR data', ['qr_data' => $qrData]);
+        
         // Thử parse JSON trước
         $decoded = json_decode($qrData, true);
         if (json_last_error() === JSON_ERROR_NONE && isset($decoded['mssv'])) {
-            return Student::where('mssv', $decoded['mssv'])->first();
+            Log::info('QR data is JSON, searching by MSSV', ['mssv' => $decoded['mssv']]);
+            $student = Student::where('mssv', $decoded['mssv'])->first();
+            if ($student) {
+                Log::info('Student found via JSON MSSV', ['student_id' => $student->id, 'mssv' => $student->mssv]);
+            } else {
+                Log::warning('Student not found via JSON MSSV', ['mssv' => $decoded['mssv']]);
+            }
+            return $student;
         }
 
         // Nếu không phải JSON, thử tìm trực tiếp bằng MSSV
-        return Student::where('mssv', $qrData)->first();
+        Log::info('QR data is not JSON, searching directly by MSSV', ['mssv' => $qrData]);
+        $student = Student::where('mssv', $qrData)->first();
+        if ($student) {
+            Log::info('Student found via direct MSSV', ['student_id' => $student->id, 'mssv' => $student->mssv]);
+        } else {
+            Log::warning('Student not found via direct MSSV', ['mssv' => $qrData]);
+        }
+        return $student;
     }
 
     /**

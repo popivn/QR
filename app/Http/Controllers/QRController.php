@@ -83,6 +83,51 @@ class QRController extends Controller
         }
     }
 
+    public function createManual(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'mssv' => 'required|string|max:20|unique:students,mssv',
+            'name' => 'nullable|string|max:255',
+            'class' => 'nullable|string|max:100'
+        ], [
+            'mssv.required' => 'MSSV là bắt buộc',
+            'mssv.unique' => 'MSSV đã tồn tại',
+            'mssv.max' => 'MSSV không được quá 20 ký tự',
+            'name.max' => 'Tên không được quá 255 ký tự',
+            'class.max' => 'Lớp không được quá 100 ký tự'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            $mssv = trim($request->mssv);
+            $name = trim($request->name);
+            $class = trim($request->class);
+
+            // Tạo QR code
+            $qrCodePath = $this->generateQRCode($mssv);
+            
+            // Lưu thông tin sinh viên
+            Student::create([
+                'mssv' => $mssv,
+                'name' => $name ?: null,
+                'class' => $class ?: null,
+                'qr_code_path' => $qrCodePath
+            ]);
+
+            return redirect()->back()->with('success', "Đã tạo thành công QR code cho sinh viên {$mssv}");
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Lỗi khi tạo QR code: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
     private function generateQRCode($mssv)
     {
         // Tạo thư mục qr-codes nếu chưa có
@@ -113,7 +158,13 @@ class QRController extends Controller
     public function listStudents()
     {
         $students = Student::orderBy('created_at', 'desc')->paginate(20);
-        return view('qr.list', compact('students'));
+        
+        // Tính toán thống kê chính xác từ toàn bộ database
+        $totalStudents = Student::count();
+        $studentsWithQR = Student::whereNotNull('qr_code_path')->count();
+        $studentsWithoutQR = Student::whereNull('qr_code_path')->count();
+        
+        return view('qr.list', compact('students', 'totalStudents', 'studentsWithQR', 'studentsWithoutQR'));
     }
 
     public function downloadQR($id)

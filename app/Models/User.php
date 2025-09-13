@@ -19,6 +19,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'role_id',
@@ -58,5 +59,13 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role_id == 1;
+    }
+
+    /**
+     * Find user by username for authentication
+     */
+    public function findForPassport($username)
+    {
+        return $this->where('username', $username)->first();
     }
 }

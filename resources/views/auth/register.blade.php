@@ -45,6 +45,19 @@
                     </div>
 
                     <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2"></i>Tên đăng nhập
+                        </label>
+                        <input id="username" 
+                               name="username" 
+                               type="text" 
+                               value="{{ old('username') }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Nhập tên đăng nhập"
+                               required>
+                    </div>
+
+                    <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-envelope mr-2"></i>Email
                         </label>

@@ -4,17 +4,6 @@
 
 @push('styles')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Ensure Arial font for Vietnamese text */
-        body, table, th, td, .font-medium, .text-sm, .text-xs {
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
-        }
-        
-        /* CSV export styling */
-        .csv-export {
-            font-family: Arial, sans-serif;
-        }
-    </style>
 @endpush
 
 @section('breadcrumb')
@@ -24,24 +13,24 @@
 @endsection
 
 @section('page-header')
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">
+            <h1 class="text-xl lg:text-2xl font-bold text-gray-800">
                 <i class="fas fa-chart-bar mr-2 text-blue-600"></i>
                 Thống kê QR Code
             </h1>
-            <p class="text-gray-600 mt-1">
+            <p class="text-gray-600 mt-1 text-sm lg:text-base">
                 Group: <span class="font-semibold text-blue-600">{{ $group->name }}</span>
             </p>
         </div>
-        <div class="flex space-x-3">
+        <div class="flex flex-col sm:flex-row gap-2 lg:gap-3">
             <a href="{{ route('qr.scanner') }}" 
-               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center">
                 <i class="fas fa-qrcode mr-2"></i>
                 Quét QR
             </a>
             <a href="{{ route('group.index') }}" 
-               class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center">
+               class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center justify-center">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Quay lại
             </a>
@@ -50,40 +39,41 @@
 @endsection
 
 @section('content')
+<div class="space-y-6 lg:space-y-8">
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                    <i class="fas fa-qrcode text-xl"></i>
+                <div class="p-2 lg:p-3 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                    <i class="fas fa-qrcode text-lg lg:text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Tổng số lần quét</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ $totalScans }}</p>
+                <div class="ml-3 lg:ml-4 min-w-0 flex-1">
+                    <p class="text-xs lg:text-sm font-medium text-gray-600">Tổng số lần quét</p>
+                    <p class="text-xl lg:text-2xl font-semibold text-gray-900">{{ $totalScans }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                    <i class="fas fa-users text-xl"></i>
+                <div class="p-2 lg:p-3 rounded-full bg-green-100 text-green-600 flex-shrink-0">
+                    <i class="fas fa-users text-lg lg:text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Sinh viên đã quét</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ $uniqueStudents }}</p>
+                <div class="ml-3 lg:ml-4 min-w-0 flex-1">
+                    <p class="text-xs lg:text-sm font-medium text-gray-600">Sinh viên đã quét</p>
+                    <p class="text-xl lg:text-2xl font-semibold text-gray-900">{{ $uniqueStudents }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 sm:col-span-2 lg:col-span-1">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                    <i class="fas fa-chart-line text-xl"></i>
+                <div class="p-2 lg:p-3 rounded-full bg-purple-100 text-purple-600 flex-shrink-0">
+                    <i class="fas fa-chart-line text-lg lg:text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Trung bình/người</p>
-                    <p class="text-2xl font-semibold text-gray-900">
+                <div class="ml-3 lg:ml-4 min-w-0 flex-1">
+                    <p class="text-xs lg:text-sm font-medium text-gray-600">Trung bình/người</p>
+                    <p class="text-xl lg:text-2xl font-semibold text-gray-900">
                         {{ $uniqueStudents > 0 ? round($totalScans / $uniqueStudents, 1) : 0 }}
                     </p>
                 </div>
@@ -92,40 +82,42 @@
     </div>
 
     <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <!-- Scan Count Chart -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
+            <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-3 lg:mb-4 flex items-center">
                 <i class="fas fa-chart-bar mr-2 text-blue-600"></i>
-                Top 10 sinh viên quét nhiều nhất
+                <span class="hidden sm:inline">Top 10 sinh viên quét nhiều nhất</span>
+                <span class="sm:hidden">Top sinh viên</span>
             </h3>
-            <div class="h-64">
+            <div class="h-48 lg:h-64">
                 <canvas id="scanCountChart"></canvas>
             </div>
         </div>
 
         <!-- Recent Activity -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
+            <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-3 lg:mb-4 flex items-center">
                 <i class="fas fa-clock mr-2 text-green-600"></i>
-                Hoạt động gần đây
+                <span class="hidden sm:inline">Hoạt động gần đây</span>
+                <span class="sm:hidden">Hoạt động</span>
             </h3>
-            <div class="space-y-3 max-h-64 overflow-y-auto">
+            <div class="space-y-2 lg:space-y-3 max-h-48 lg:max-h-64 overflow-y-auto">
                 @forelse($statistics->take(10) as $stat)
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <div class="font-medium text-gray-800">{{ $stat->student->name ?? 'N/A' }}</div>
-                            <div class="text-sm text-gray-600">MSSV: {{ $stat->student->mssv }}</div>
+                    <div class="flex items-center justify-between p-2 lg:p-3 bg-gray-50 rounded-lg">
+                        <div class="min-w-0 flex-1">
+                            <div class="font-medium text-gray-800 text-sm lg:text-base truncate">{{ $stat->student->name ?? 'N/A' }}</div>
+                            <div class="text-xs lg:text-sm text-gray-600">MSSV: {{ $stat->student->mssv }}</div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-sm font-semibold text-blue-600">{{ $stat->scan_count }} lần</div>
+                        <div class="text-right flex-shrink-0 ml-2">
+                            <div class="text-xs lg:text-sm font-semibold text-blue-600">{{ $stat->scan_count }} lần</div>
                             <div class="text-xs text-gray-500">{{ $stat->last_scanned_at->format('d/m H:i') }}</div>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center text-gray-500 py-8">
-                        <i class="fas fa-inbox text-3xl mb-2"></i>
-                        <p>Chưa có dữ liệu quét</p>
+                    <div class="text-center text-gray-500 py-6 lg:py-8">
+                        <i class="fas fa-inbox text-2xl lg:text-3xl mb-2"></i>
+                        <p class="text-sm lg:text-base">Chưa có dữ liệu quét</p>
                     </div>
                 @endforelse
             </div>
@@ -133,25 +125,64 @@
     </div>
 
     <!-- Detailed Statistics Table -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">
+    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-4 mb-4 lg:mb-6">
+            <h3 class="text-base lg:text-lg font-semibold text-gray-800 flex items-center">
                 <i class="fas fa-table mr-2 text-purple-600"></i>
-                Chi tiết thống kê
+                <span class="hidden sm:inline">Chi tiết thống kê</span>
+                <span class="sm:hidden">Chi tiết</span>
             </h3>
-            <div class="flex space-x-2">
-                <button onclick="refreshData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
-                    <i class="fas fa-sync-alt mr-1"></i>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button onclick="refreshData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs lg:text-sm flex items-center justify-center">
+                    <i class="fas fa-sync-alt mr-1 lg:mr-2"></i>
                     Làm mới
                 </button>
-                <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
-                    <i class="fas fa-download mr-1"></i>
+                <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-xs lg:text-sm flex items-center justify-center">
+                    <i class="fas fa-download mr-1 lg:mr-2"></i>
                     Xuất Excel
                 </button>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <!-- Mobile Card View -->
+        <div class="block lg:hidden space-y-3">
+            @forelse($statistics as $stat)
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center min-w-0 flex-1">
+                            <div class="flex-shrink-0 h-8 w-8">
+                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-600 text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="ml-3 min-w-0 flex-1">
+                                <div class="text-sm font-medium text-gray-900 truncate">
+                                    {{ $stat->student->name ?? 'N/A' }}
+                                </div>
+                                <div class="text-xs text-gray-600">MSSV: {{ $stat->student->mssv }}</div>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                            {{ $stat->scan_count >= 5 ? 'bg-green-100 text-green-800' : 
+                               ($stat->scan_count >= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                            {{ $stat->scan_count }} lần
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-gray-600">
+                        <span>Lớp: {{ $stat->student->class ?? 'N/A' }}</span>
+                        <span>{{ $stat->last_scanned_at->format('d/m H:i') }}</span>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-inbox text-3xl mb-2"></i>
+                    <p class="text-sm">Chưa có dữ liệu quét QR</p>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -219,7 +250,7 @@
         </div>
 
         @if($statistics->count() > 0)
-            <div class="mt-4 flex items-center justify-between text-sm text-gray-700">
+            <div class="mt-4 lg:mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs lg:text-sm text-gray-700">
                 <div>
                     Hiển thị {{ $statistics->count() }} sinh viên
                 </div>
@@ -229,6 +260,7 @@
             </div>
         @endif
     </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -269,16 +301,44 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: window.innerWidth < 640 ? 45 : 0,
+                            font: {
+                                size: window.innerWidth < 640 ? 10 : 12
+                            }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            stepSize: 1
+                            stepSize: 1,
+                            font: {
+                                size: window.innerWidth < 640 ? 10 : 12
+                            }
                         }
                     }
                 },
                 plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                size: window.innerWidth < 640 ? 10 : 12
+                            }
+                        }
+                    },
                     tooltip: {
+                        titleFont: {
+                            size: window.innerWidth < 640 ? 11 : 13
+                        },
+                        bodyFont: {
+                            size: window.innerWidth < 640 ? 10 : 12
+                        },
                         callbacks: {
                             title: function(context) {
                                 const index = context[0].dataIndex;

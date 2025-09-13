@@ -29,7 +29,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'username' => 'required|string',
             'password' => 'required'
         ]);
 
@@ -38,15 +38,15 @@ class AuthController extends Controller
             
             // Redirect based on role
             if (Auth::user()->isAdmin()) {
-                return redirect()->intended(route('qr.index'));
+                return redirect()->intended(route('group.index'));
             } else {
                 return redirect()->intended(route('group.index'));
             }
         }
 
         return back()->withErrors([
-            'email' => 'Thông tin đăng nhập không chính xác.',
-        ])->onlyInput('email');
+            'username' => 'Thông tin đăng nhập không chính xác.',
+        ])->onlyInput('username');
     }
 
     public function showRegister()
@@ -58,12 +58,14 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role_id' => 2, // Default role is User
@@ -82,5 +84,56 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    public function verifyLogin(Request $request)
+    {
+        $token = $request->get('token');
+        $username = $request->get('username');
+
+        // Kiểm tra token và username
+        if (!$token || !$username) {
+            return redirect()->route('login')->with('error', 'Thiếu thông tin xác thực.');
+        }
+
+        // Tìm user theo username
+        $user = User::where('username', $username)->first();
+
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Người dùng không tồn tại.');
+        }
+
+        // Gửi request xác thực token tới API ngoài
+        $apiUrl = 'https://info.vttu.edu.vn/api/verify_token.php';
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get($apiUrl, [
+                'username' => $username,
+                'token' => $token
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('login')->with('error', 'Không thể kết nối tới máy chủ xác thực.');
+        }
+
+        if (!$response || $response->failed()) {
+            return redirect()->route('login')->with('error', 'Lỗi xác thực từ máy chủ.');
+        }
+
+        $result = $response->json();
+
+        // Giả sử API trả về ['status' => 'ok'] khi thành công
+        if (!isset($result['status']) || $result['status'] !== 'ok') {
+            return redirect()->route('login')->with('error', 'Token không hợp lệ hoặc đã hết hạn.');
+        }
+
+        // Đăng nhập user
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // Redirect based on role
+        if ($user->isAdmin()) {
+            return redirect()->intended(route('group.index'))->with('success', 'Đăng nhập thành công!');
+        } else {
+            return redirect()->intended(route('group.index'))->with('success', 'Đăng nhập thành công!');
+        }
     }
 }

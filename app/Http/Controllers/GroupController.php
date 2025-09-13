@@ -12,9 +12,16 @@ class GroupController extends Controller
     public function index()
     {
         $user = auth()->user();
+        
+        // Admin có thể truy cập tất cả nhóm mà không cần thuộc về nhóm cụ thể
+        if ($user->isAdmin()) {
+            $groups = Group::with('users')->get();
+            return view('group.admin-index', compact('groups'));
+        }
+        
         $group = $user->group;
         
-        // Nếu user chưa có group, hiển thị thông báo chờ admin phân công
+        // Nếu user thường chưa có group, hiển thị thông báo chờ admin phân công
         if (!$group) {
             return view('group.waiting', compact('user'));
         }
