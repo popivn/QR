@@ -320,19 +320,22 @@ class QRScannerController extends Controller
     public function leaderboard()
     {
         // Lấy thống kê tổng thể của tất cả groups
-        $leaderboard = Group::withCount(['groupStudents as total_scans' => function($query) {
-                $query->selectRaw('sum(scan_count)');
-            }])
-            ->withCount(['groupStudents as unique_students' => function($query) {
-                $query->selectRaw('count(distinct student_id)');
-            }])
-            ->orderBy('total_scans', 'desc')
-            ->orderBy('unique_students', 'desc')
-            ->get();
+        $leaderboard = Group::withCount([
+            'groupStudents as total_scans' => function ($query) {
+                $query->selectRaw('SUM(scan_count)');
+            },
+            'groupStudents as unique_students' => function ($query) {
+                $query->selectRaw('COUNT(DISTINCT student_id)');
+            }
+        ])
+        ->orderBy('unique_students', 'desc')
+        ->get();
 
+        // Tính tổng số sinh viên duy nhất trong toàn hệ thống (không trùng lặp)
+        $totalSystemStudents = GroupStudent::distinct('student_id')->count();
+        
         // Tính tổng số lần quét của toàn hệ thống
-        $totalSystemScans = $leaderboard->sum('total_scans');
-        $totalSystemStudents = $leaderboard->sum('unique_students');
+        $totalSystemScans = GroupStudent::sum('scan_count');
 
         return view('qr.leaderboard', compact('leaderboard', 'totalSystemScans', 'totalSystemStudents'));
     }

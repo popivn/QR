@@ -32,6 +32,9 @@ WORKDIR /var/www
 COPY . /var/www
 
 
+# Create appuser
+RUN groupadd -g 1000 appuser && useradd -u 1000 -ms /bin/bash -g appuser appuser
+
 # Create Laravel cache directories
 RUN mkdir -p bootstrap/cache \
     && mkdir -p storage/framework/{cache,sessions,views} \

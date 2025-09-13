@@ -10,7 +10,6 @@
             font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
         }
         
-        /* Clean leaderboard styling */
         .leaderboard-container {
             background: #ffffff;
             border-radius: 12px;
