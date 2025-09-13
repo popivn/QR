@@ -28,8 +28,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
+# Copy composer files first for better caching
+COPY composer.json composer.lock /var/www/
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
 # Copy existing application directory contents
 COPY . /var/www
+
+# Re-run composer install to ensure all dependencies are properly installed
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Create appuser
 RUN groupadd -g 1000 appuser && useradd -u 1000 -ms /bin/bash -g appuser appuser
@@ -44,6 +53,12 @@ RUN mkdir -p bootstrap/cache \
 RUN chown -R appuser:appuser /var/www \
     && chmod -R 755 /var/www/storage \
     && chmod -R 755 /var/www/bootstrap/cache
+
+# Generate application key and run migrations (as root before switching user)
+RUN php artisan key:generate --force \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
 # Make artisan executable if it exists
 RUN if [ -f /var/www/artisan ]; then chmod +x /var/www/artisan; fi
