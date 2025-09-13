@@ -7,6 +7,8 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap CSS for audit views -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="<?php echo e(asset('Logo-DH-Vo-Truong-Toan-VTTU-288x300.png')); ?>">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -83,6 +85,39 @@
         .focus-visible:focus {
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
+        }
+        
+        /* Bootstrap compatibility for audit views */
+        .audit-container {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        /* Ensure Bootstrap cards work properly */
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        
+        /* Override Tailwind for audit pages */
+        .audit-page .container-fluid {
+            padding: 0 !important;
+        }
+        
+        /* Ensure audit pages use Bootstrap styling */
+        .audit-page * {
+            box-sizing: border-box;
+        }
+        
+        .audit-page .card {
+            background-color: #fff;
+            border-radius: 0.375rem;
+        }
+        
+        .audit-page .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
         }
     </style>
     
@@ -315,6 +350,9 @@
             });
         });
     </script>
+
+    <!-- Bootstrap JS for audit views -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>

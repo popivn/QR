@@ -48,11 +48,14 @@ RUN chown -R appuser:appuser /var/www \
 # Make artisan executable if it exists
 RUN if [ -f /var/www/artisan ]; then chmod +x /var/www/artisan; fi
 
+# Debug: List files to verify artisan exists
+RUN ls -la /var/www/ | head -20
+
 # Switch to non-root user
 USER appuser
 
 # Expose port
 EXPOSE 8000
 
-# Start Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Start Laravel with absolute path
+CMD ["php", "/var/www/artisan", "serve", "--host=0.0.0.0", "--port=8000"]
