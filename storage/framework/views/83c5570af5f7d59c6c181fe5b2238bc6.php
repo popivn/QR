@@ -103,6 +103,11 @@
                 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-4">
+                    <!-- Bảng xếp hạng - accessible to everyone -->
+                    <a href="<?php echo e(route('qr.leaderboard')); ?>" class="text-gray-700 hover:text-blue-600 smooth-transition">
+                        <i class="fas fa-trophy mr-1"></i>Bảng xếp hạng
+                    </a>
+                    
                     <?php if(auth()->guard()->check()): ?>
                         <a href="<?php echo e(route('group.index')); ?>" class="text-gray-700 hover:text-blue-600 smooth-transition">
                             <i class="fas fa-users mr-1"></i>Quản lý nhóm
@@ -139,6 +144,11 @@
             <!-- Mobile Navigation Menu -->
             <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 py-4">
                 <div class="flex flex-col space-y-2">
+                    <!-- Bảng xếp hạng - accessible to everyone -->
+                    <a href="<?php echo e(route('qr.leaderboard')); ?>" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
+                        <i class="fas fa-trophy mr-2"></i>Bảng xếp hạng
+                    </a>
+                    
                     <?php if(auth()->guard()->check()): ?>
                         <a href="<?php echo e(route('group.index')); ?>" class="text-gray-700 hover:text-blue-600 py-2 smooth-transition">
                             <i class="fas fa-users mr-2"></i>Quản lý nhóm
@@ -233,10 +243,19 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-12">
+    <footer class="bg-gray-800 text-white mt-12">
         <div class="container mx-auto px-4 py-6">
-            <div class="text-center text-gray-600 mobile-text-sm">
-                <p>&copy; <?php echo e(date('Y')); ?> QR Scan System - VTTU. Tất cả quyền được bảo lưu.</p>
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-university mr-2 text-blue-400"></i>
+                    <span class="font-semibold text-sm sm:text-base">Trung Tâm Công Nghệ Phần Mềm</span>
+                </div>
+                <p class="text-xs sm:text-sm text-gray-300">
+                    Trường Đại Học Võ Trường Toản
+                </p>
+                <p class="text-xs text-gray-400 mt-2">
+                    © <?php echo e(date('Y')); ?> All rights reserved
+                </p>
             </div>
         </div>
     </footer>

@@ -24,6 +24,13 @@
         
         <!-- Các nút hành động -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <!-- Bảng xếp hạng - accessible to everyone -->
+            <a href="<?php echo e(route('qr.statistics')); ?>" 
+               class="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl">
+                <i class="fas fa-trophy"></i>
+                <span>Bảng xếp hạng</span>
+            </a>
+            
             <?php if(auth()->guard()->check()): ?>
                 <a href="<?php echo e(route('group.index')); ?>" 
                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl">

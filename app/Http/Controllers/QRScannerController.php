@@ -281,18 +281,18 @@ class QRScannerController extends Controller
     {
         $user = auth()->user();
         
-        // Nếu không có group_id, lấy group của user hiện tại
+        // Nếu không có group_id, hiển thị bảng xếp hạng tổng thể
         if (!$groupId) {
-            $groupId = $user->group_id;
+            return $this->showLeaderboard();
         }
         
-        // Nếu user chưa có group, redirect về trang chờ phân công
-        if (!$groupId) {
+        // Nếu user chưa có group và không phải admin, redirect về trang chờ phân công
+        if ($user && !$user->isAdmin() && !$groupId) {
             return redirect()->route('group.index')->with('error', 'Bạn chưa được phân vào nhóm nào. Vui lòng chờ Admin phân công.');
         }
         
-        // Kiểm tra quyền truy cập
-        if (!$user->isAdmin() && $user->group_id != $groupId) {
+        // Kiểm tra quyền truy cập (chỉ áp dụng cho user đã đăng nhập)
+        if ($user && !$user->isAdmin() && $user->group_id != $groupId) {
             abort(403, 'Bạn không có quyền xem thống kê của group này');
         }
 
@@ -315,14 +315,60 @@ class QRScannerController extends Controller
     }
 
     /**
+     * Hiển thị bảng xếp hạng tổng thể
+     */
+    public function leaderboard()
+    {
+        // Lấy thống kê tổng thể của tất cả groups
+        $leaderboard = Group::withCount(['groupStudents as total_scans' => function($query) {
+                $query->selectRaw('sum(scan_count)');
+            }])
+            ->withCount(['groupStudents as unique_students' => function($query) {
+                $query->selectRaw('count(distinct student_id)');
+            }])
+            ->orderBy('total_scans', 'desc')
+            ->orderBy('unique_students', 'desc')
+            ->get();
+
+        // Tính tổng số lần quét của toàn hệ thống
+        $totalSystemScans = $leaderboard->sum('total_scans');
+        $totalSystemStudents = $leaderboard->sum('unique_students');
+
+        return view('qr.leaderboard', compact('leaderboard', 'totalSystemScans', 'totalSystemStudents'));
+    }
+
+    /**
+     * Hiển thị bảng xếp hạng tổng thể (private method cho statistics)
+     */
+    private function showLeaderboard()
+    {
+        // Lấy thống kê tổng thể của tất cả groups
+        $leaderboard = Group::withCount(['groupStudents as total_scans' => function($query) {
+                $query->selectRaw('sum(scan_count)');
+            }])
+            ->withCount(['groupStudents as unique_students' => function($query) {
+                $query->selectRaw('count(distinct student_id)');
+            }])
+            ->orderBy('total_scans', 'desc')
+            ->orderBy('unique_students', 'desc')
+            ->get();
+
+        // Tính tổng số lần quét của toàn hệ thống
+        $totalSystemScans = $leaderboard->sum('total_scans');
+        $totalSystemStudents = $leaderboard->sum('unique_students');
+
+        return view('qr.statistics', compact('leaderboard', 'totalSystemScans', 'totalSystemStudents'));
+    }
+
+    /**
      * API endpoint để lấy thống kê real-time
      */
     public function getStatistics($groupId)
     {
         $user = auth()->user();
         
-        // Kiểm tra quyền truy cập
-        if (!$user->isAdmin() && $user->group_id != $groupId) {
+        // Kiểm tra quyền truy cập (chỉ áp dụng cho user đã đăng nhập)
+        if ($user && !$user->isAdmin() && $user->group_id != $groupId) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

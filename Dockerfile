@@ -1,101 +1,67 @@
-# Multi-stage build for Laravel QR Scanner Production
-FROM php:8.2-fpm-alpine AS base
+# Use the official PHP image as a base image
+FROM php:8.2-fpm
 
-# Install system dependencies
-RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    sqlite \
+# Install system dependencies, Node.js, npm
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    zip \
+    unzip \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
-    oniguruma-dev \
+    libonig-dev \
     libxml2-dev \
-    icu-dev \
-    autoconf \
-    g++ \
-    make \
+    libzip-dev \
+    libpq-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     nodejs \
-    npm
+    npm \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_sqlite \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-        intl \
-        opcache
+# Cài Chromium (Headless Chrome/Chromium cho chrome-php/chrome & Browsershot)
+RUN apt-get update && apt-get install -y chromium \
+    && rm -rf /var/lib/apt/lists/*
+
+# Link chromium vào chrome (nếu cần)
+RUN ln -s /usr/bin/chromium /usr/bin/google-chrome
+
+# Install Puppeteer globally (Browsershot dependency)
+RUN npm install -g puppeteer
+
+# Create non-root user for running Puppeteer/Chrome
+RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
+    && mkdir -p /home/appuser/Downloads \
+    && chown -R appuser:appuser /home/appuser
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /var/www
 
-# Copy composer files
-COPY composer.json composer.lock ./
+# Copy existing application directory contents
+COPY . /var/www
 
-# Install PHP dependencies (production only)
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+# Install Laravel dependencies and required packages for Spatie\LaravelPdf
+RUN composer install --optimize-autoloader --no-dev \
+    && composer require chrome-php/chrome spatie/browsershot --no-scripts --no-interaction
 
-# Copy package files
-COPY package.json package-lock.json ./
-
-# Install Node dependencies and build assets
-RUN npm ci --only=production && npm run build
-
-# Copy application code
-COPY . .
+# Create Laravel cache directories
+RUN mkdir -p bootstrap/cache \
+    && mkdir -p storage/framework/{cache,sessions,views} \
+    && mkdir -p storage/logs \
+    && mkdir -p storage/app/tmp_bulk_pdfs
 
 # Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+RUN chown -R appuser:appuser /var/www \
+    && chmod -R 755 /var/www/storage \
+    && chmod -R 755 /var/www/bootstrap/cache
 
-# Create nginx user
-RUN adduser -D -S -G www-data nginx
-
-# Copy nginx configuration
-COPY docker/nginx.conf /etc/nginx/nginx.conf
-COPY docker/default.conf /etc/nginx/http.d/default.conf
-
-# Copy supervisor configuration
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Copy PHP-FPM configuration
-COPY docker/www.conf /usr/local/etc/php-fpm.d/www.conf
-
-# Copy PHP configuration
-COPY docker/php.ini /usr/local/etc/php/conf.d/99-custom.ini
-
-# Create necessary directories
-RUN mkdir -p /var/log/supervisor \
-    && mkdir -p /var/run/nginx \
-    && mkdir -p /var/lib/nginx/tmp \
-    && mkdir -p /var/lib/nginx/proxy \
-    && mkdir -p /var/lib/nginx/fastcgi \
-    && mkdir -p /var/lib/nginx/uwsgi \
-    && mkdir -p /var/lib/nginx/scgi
-
-# Generate application key and optimize
-RUN php artisan key:generate --force \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+# Switch to non-root user
+USER appuser
 
 # Expose port
-EXPOSE 80
+EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
-
-# Start supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start Laravel
+CMD php artisan serve --host=0.0.0.0 --port=8000

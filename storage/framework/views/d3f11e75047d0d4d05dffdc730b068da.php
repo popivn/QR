@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <title>Đăng nhập - VTTU</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+
+<?php $__env->startSection('title', 'Đăng nhập - VTTU'); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="max-w-md w-full space-y-8">
         <div class="bg-white rounded-lg shadow-md p-8">
             <!-- Header -->
@@ -81,6 +76,7 @@
             
         </div>
     </div>
-</body>
-</html>
-<?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/auth/login.blade.php ENDPATH**/ ?>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/auth/login.blade.php ENDPATH**/ ?>

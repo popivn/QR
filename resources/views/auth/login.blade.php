@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Đăng nhập - VTTU</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+@extends('layouts.app')
+
+@section('title', 'Đăng nhập - VTTU')
+
+@section('content')
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="max-w-md w-full space-y-8">
         <div class="bg-white rounded-lg shadow-md p-8">
             <!-- Header -->
@@ -80,5 +75,5 @@
             
         </div>
     </div>
-</body>
-</html>
+</div>
+@endsection

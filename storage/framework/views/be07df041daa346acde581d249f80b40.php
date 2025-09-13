@@ -347,6 +347,8 @@
                                 showMessage('Chờ 1.5 giây trước khi quét tiếp...', 'info');
                                 setTimeout(() => {
                                     isProcessing = false;
+                                    document.getElementById('processing-indicator').classList.add('hidden');
+                                    document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                                     showMessage('Sẵn sàng quét QR code tiếp theo', 'success');
                                 }, 1500);
                             } catch (e) {
@@ -360,6 +362,8 @@
                             // Reset processing flag on error
                             setTimeout(() => {
                                 isProcessing = false;
+                                document.getElementById('processing-indicator').classList.add('hidden');
+                                document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                                 showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                             }, 1500);
                         }
@@ -377,6 +381,8 @@
                     // Reset processing flag on network error
                     setTimeout(() => {
                         isProcessing = false;
+                        document.getElementById('processing-indicator').classList.add('hidden');
+                        document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                         showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                     }, 1500);
                 };
@@ -388,6 +394,8 @@
                     // Reset processing flag on timeout
                     setTimeout(() => {
                         isProcessing = false;
+                        document.getElementById('processing-indicator').classList.add('hidden');
+                        document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                         showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                     }, 1500);
                 };
@@ -401,6 +409,8 @@
                 // Reset processing flag on catch error
                 setTimeout(() => {
                     isProcessing = false;
+                    document.getElementById('processing-indicator').classList.add('hidden');
+                    document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
                     showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                 }, 1500);
             }

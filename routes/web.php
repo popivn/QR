@@ -22,6 +22,11 @@ Route::middleware(['auth-ngrok'])->group(function () {
 });
 
 
+// Public routes - accessible to everyone
+Route::get('/qr/statistics/{groupId?}', [QRScannerController::class, 'statistics'])->name('qr.statistics');
+Route::get('/qr/leaderboard', [QRScannerController::class, 'leaderboard'])->name('qr.leaderboard');
+Route::get('/qr/api/statistics/{groupId}', [QRScannerController::class, 'getStatistics'])->name('qr.api.statistics');
+
 // Group routes (for all authenticated users)
 Route::middleware(['auth'])->group(function () {
     Route::get('/group', [GroupController::class, 'index'])->name('group.index');
@@ -30,8 +35,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/qr/scanner', [QRScannerController::class, 'index'])->name('qr.scanner');
     Route::post('/qr/scan', [QRScannerController::class, 'scan'])->name('qr.scan');
     Route::post('/qr/scan-image', [QRScannerController::class, 'scanImage'])->name('qr.scan-image');
-    Route::get('/qr/statistics/{groupId?}', [QRScannerController::class, 'statistics'])->name('qr.statistics');
-    Route::get('/qr/api/statistics/{groupId}', [QRScannerController::class, 'getStatistics'])->name('qr.api.statistics');
 });
 
 // Admin only routes (role_id = 1)

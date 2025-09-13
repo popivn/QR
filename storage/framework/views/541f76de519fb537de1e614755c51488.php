@@ -1,6 +1,6 @@
 
 
-<?php $__env->startSection('title', 'Thống kê QR Code - ' . $group->name); ?>
+<?php $__env->startSection('title', isset($group) ? 'Thống kê QR Code - ' . $group->name : 'Bảng xếp hạng QR Code'); ?>
 
 <?php $__env->startPush('styles'); ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

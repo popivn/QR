@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Thống kê QR Code - ' . $group->name)
+@section('title', isset($group) ? 'Thống kê QR Code - ' . $group->name : 'Bảng xếp hạng QR Code')
 
 @push('styles')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
