@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách sinh viên - QR Code Generator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
+<?php $__env->startSection('title', 'Danh sách sinh viên - QR Code Generator'); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <div class="flex items-center justify-between">
@@ -34,7 +27,7 @@
         </div>
 
         <!-- Stats -->
-        <div class="grid md:grid-cols-4 gap-6 mb-8">
+        <div class="grid md:grid-cols-1 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -43,42 +36,6 @@
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng sinh viên</p>
                         <p class="text-2xl font-semibold text-gray-900"><?php echo e($students->total()); ?></p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 text-green-600">
-                        <i class="fas fa-qrcode text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Có QR Code</p>
-                        <p class="text-2xl font-semibold text-gray-900"><?php echo e($students->where('qr_code_path', '!=', null)->count()); ?></p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                        <i class="fas fa-clock text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Hôm nay</p>
-                        <p class="text-2xl font-semibold text-gray-900"><?php echo e($students->where('created_at', '>=', today())->count()); ?></p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                        <i class="fas fa-calendar text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Tuần này</p>
-                        <p class="text-2xl font-semibold text-gray-900"><?php echo e($students->where('created_at', '>=', now()->startOfWeek())->count()); ?></p>
                     </div>
                 </div>
             </div>
@@ -156,7 +113,7 @@
                                                 <i class="fas fa-download mr-1"></i>Tải QR
                                             </a>
                                         <?php endif; ?>
-                                        <button onclick="viewQR('<?php echo e($student->mssv); ?>')" 
+                                        <button onclick="viewQR('<?php echo e($student->mssv); ?>', '<?php echo e($student->qr_code_path); ?>')" 
                                                 class="text-green-600 hover:text-green-900">
                                             <i class="fas fa-eye mr-1"></i>Xem QR
                                         </button>
@@ -206,20 +163,31 @@
     </div>
 
     <script>
-        function viewQR(mssv) {
+        function viewQR(mssv, qrPath) {
             const modal = document.getElementById('qrModal');
             const container = document.getElementById('qrCodeContainer');
             
-            // Create QR code using a simple API or library
-            // For demo purposes, we'll show the MSSV
-            container.innerHTML = `
-                <div class="bg-gray-100 p-4 rounded-lg">
+            if (qrPath) {
+                // Hiển thị hình ảnh QR code thực tế
+                const fileName = qrPath.split('/').pop(); // Lấy tên file từ path
+                container.innerHTML = `
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-gray-800 mb-2">${mssv}</div>
-                        <div class="text-sm text-gray-600">Mã số sinh viên</div>
+                        <div class="text-lg font-semibold text-gray-800 mb-3">QR Code - ${mssv}</div>
+                        <img src="/qr/display/${fileName}" alt="QR Code ${mssv}" class="mx-auto border border-gray-300 rounded-lg shadow-sm" style="max-width: 300px; max-height: 300px;">
+                        <div class="text-sm text-gray-600 mt-3">Mã số sinh viên: ${mssv}</div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                // Fallback nếu không có QR code
+                container.innerHTML = `
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-800 mb-2">${mssv}</div>
+                            <div class="text-sm text-gray-600">Chưa có QR code</div>
+                        </div>
+                    </div>
+                `;
+            }
             
             modal.classList.remove('hidden');
         }
@@ -235,6 +203,6 @@
             }
         });
     </script>
-</body>
-</html>
-<?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/qr/list.blade.php ENDPATH**/ ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/qr/list.blade.php ENDPATH**/ ?>

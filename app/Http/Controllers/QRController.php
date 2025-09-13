@@ -124,7 +124,14 @@ class QRController extends Controller
             return redirect()->back()->with('error', 'File QR code không tồn tại');
         }
 
-        return Storage::download($student->qr_code_path, $student->mssv);
+        // Tải file với tên có extension .png và set đúng MIME type
+        $fileName = $student->mssv . '.png';
+        $filePath = Storage::path($student->qr_code_path);
+        
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
+        ]);
     }
 
     public function downloadAllQR()
@@ -151,7 +158,8 @@ class QRController extends Controller
         foreach ($students as $student) {
             if (Storage::exists($student->qr_code_path)) {
                 $fileContent = Storage::get($student->qr_code_path);
-                $zip->addFromString($student->mssv, $fileContent);
+                $fileName = $student->mssv . '.png';
+                $zip->addFromString($fileName, $fileContent);
             }
         }
 

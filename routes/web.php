@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\QRController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\AuthController;
@@ -68,4 +69,13 @@ Route::middleware(['auth', 'role:admin', 'audit'])->group(function () {
     Route::get('/audit/{auditLog}', [AuditLogController::class, 'show'])->name('audit.show');
     Route::get('/audit-statistics', [AuditLogController::class, 'statistics'])->name('audit.statistics');
     Route::get('/audit-export', [AuditLogController::class, 'export'])->name('audit.export');
+    
+    // QR Code display route
+    Route::get('/qr/display/{path}', function($path) {
+        $fullPath = 'qr-codes/' . $path;
+        if (Storage::exists($fullPath)) {
+            return response()->file(Storage::path($fullPath));
+        }
+        abort(404);
+    })->where('path', '.*')->name('qr.display');
 });

@@ -73,7 +73,6 @@ coverage/
 .nyc_output/
 
 # Laravel specific
-artisan
 storage/app/public/*
 !storage/app/public/.gitignore
 
