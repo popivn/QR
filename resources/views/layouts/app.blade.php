@@ -11,7 +11,34 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="{{ asset('Logo-DH-Vo-Truong-Toan-VTTU-288x300.png') }}">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    <!-- Fallback for Font Awesome -->
+    <script>
+        // Check if Font Awesome loaded, if not, try alternative CDN
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const testIcon = document.createElement('i');
+                testIcon.className = 'fas fa-check';
+                testIcon.style.position = 'absolute';
+                testIcon.style.left = '-9999px';
+                document.body.appendChild(testIcon);
+                
+                const computedStyle = window.getComputedStyle(testIcon);
+                const fontFamily = computedStyle.getPropertyValue('font-family');
+                
+                if (!fontFamily.includes('Font Awesome')) {
+                    console.warn('Font Awesome not loaded, trying alternative CDN');
+                    const fallbackLink = document.createElement('link');
+                    fallbackLink.rel = 'stylesheet';
+                    fallbackLink.href = 'https://use.fontawesome.com/releases/v6.0.0/css/all.css';
+                    fallbackLink.crossOrigin = 'anonymous';
+                    document.head.appendChild(fallbackLink);
+                }
+                
+                document.body.removeChild(testIcon);
+            }, 1000);
+        });
+    </script>
     
     <!-- Custom CSS for mobile optimization -->
     <style>
@@ -118,6 +145,25 @@
         .audit-page .card-header {
             background-color: #f8f9fa;
             border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        
+        /* Ensure Font Awesome icons are always visible */
+        .fas, .far, .fab, .fal, .fad {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 5 Free", "Font Awesome 5 Pro" !important;
+            font-weight: 900 !important;
+            font-style: normal !important;
+            font-variant: normal !important;
+            text-rendering: auto !important;
+            line-height: 1 !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+        
+        /* Prevent icons from disappearing */
+        i[class*="fa-"] {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
     </style>
     
@@ -317,12 +363,18 @@
 
         // Auto-hide flash messages after 5 seconds
         setTimeout(function() {
-            const flashMessages = document.querySelectorAll('.bg-green-100, .bg-red-100, .bg-yellow-100, .bg-blue-100');
+            const flashMessages = document.querySelectorAll('.bg-green-100.border-green-400, .bg-red-100.border-red-400, .bg-yellow-100.border-yellow-400, .bg-blue-100.border-blue-400');
             flashMessages.forEach(function(message) {
-                message.style.opacity = '0';
-                setTimeout(function() {
-                    message.remove();
-                }, 300);
+                // Only hide if it's actually a flash message (has border class)
+                if (message.classList.contains('border-green-400') || 
+                    message.classList.contains('border-red-400') || 
+                    message.classList.contains('border-yellow-400') || 
+                    message.classList.contains('border-blue-400')) {
+                    message.style.opacity = '0';
+                    setTimeout(function() {
+                        message.remove();
+                    }, 300);
+                }
             });
         }, 5000);
 
