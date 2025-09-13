@@ -66,7 +66,7 @@ bootstrap/cache/*
 !bootstrap/cache/.gitignore
 
 # Vendor (will be installed in container)
-vendor/
+# vendor/ - Commented out to allow vendor directory in container
 
 # Coverage reports
 coverage/
