@@ -344,12 +344,10 @@
                                 }
                                 
                                 // Add delay before allowing next scan
-                                showMessage('Chờ 1.5 giây trước khi quét tiếp...', 'info');
                                 setTimeout(() => {
                                     isProcessing = false;
                                     document.getElementById('processing-indicator').classList.add('hidden');
                                     document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
-                                    showMessage('Sẵn sàng quét QR code tiếp theo', 'success');
                                 }, 1500);
                             } catch (e) {
                                 console.error('Parse error:', e);
@@ -357,14 +355,24 @@
                             }
                         } else {
                             console.error('HTTP error:', xhr.status, xhr.responseText);
-                            showMessage('Lỗi HTTP ' + xhr.status, 'error');
+                            
+                            // Try to parse error response for custom message
+                            try {
+                                const errorResult = JSON.parse(xhr.responseText);
+                                if (errorResult.message) {
+                                    showMessage(errorResult.message, 'error');
+                                } else {
+                                    showMessage('Lỗi HTTP ' + xhr.status, 'error');
+                                }
+                            } catch (e) {
+                                showMessage('Lỗi HTTP ' + xhr.status, 'error');
+                            }
                             
                             // Reset processing flag on error
                             setTimeout(() => {
                                 isProcessing = false;
                                 document.getElementById('processing-indicator').classList.add('hidden');
                                 document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
-                                showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                             }, 1500);
                         }
                     }
@@ -383,7 +391,6 @@
                         isProcessing = false;
                         document.getElementById('processing-indicator').classList.add('hidden');
                         document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
-                        showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                     }, 1500);
                 };
                 
@@ -396,7 +403,6 @@
                         isProcessing = false;
                         document.getElementById('processing-indicator').classList.add('hidden');
                         document.getElementById('scanner-status').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Hướng camera vào mã QR để quét';
-                        showMessage('Sẵn sàng quét QR code tiếp theo', 'info');
                     }, 1500);
                 };
                 
@@ -436,16 +442,37 @@
             const qrInfoDiv = document.getElementById('qrInfo');
             const qrInfoContent = document.getElementById('qrInfoContent');
             
-            let infoHtml = '<div class="space-y-2">';
-            infoHtml += '<p><strong>Nội dung QR:</strong> ' + qrData + '</p>';
+            let infoHtml = '<div class="space-y-3">';
             
-            // Try to parse as JSON
+            // Try to parse as JSON first (for backward compatibility)
             try {
                 const parsed = JSON.parse(qrData);
-                infoHtml += '<p><strong>Dữ liệu JSON:</strong></p>';
-                infoHtml += '<pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto">' + JSON.stringify(parsed, null, 2) + '</pre>';
+                if (parsed.mssv) {
+                    infoHtml += '<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">';
+                    infoHtml += '<div class="flex items-center mb-2">';
+                    infoHtml += '<i class="fas fa-id-card text-blue-600 mr-2"></i>';
+                    infoHtml += '<span class="font-semibold text-blue-800">Mã số sinh viên</span>';
+                    infoHtml += '</div>';
+                    infoHtml += '<p class="text-lg font-bold text-blue-900">' + parsed.mssv + '</p>';
+                    if (parsed.type) {
+                        infoHtml += '<p class="text-sm text-blue-700 mt-1">Loại: ' + parsed.type + '</p>';
+                    }
+                    infoHtml += '</div>';
+                } else {
+                    infoHtml += '<div class="bg-gray-50 border border-gray-200 rounded-lg p-3">';
+                    infoHtml += '<p class="text-sm text-gray-600">Dữ liệu JSON không hợp lệ</p>';
+                    infoHtml += '</div>';
+                }
             } catch (e) {
-                infoHtml += '<p><strong>Loại:</strong> Văn bản thường</p>';
+                // Not JSON, treat as plain MSSV
+                infoHtml += '<div class="bg-green-50 border border-green-200 rounded-lg p-3">';
+                infoHtml += '<div class="flex items-center mb-2">';
+                infoHtml += '<i class="fas fa-id-card text-green-600 mr-2"></i>';
+                infoHtml += '<span class="font-semibold text-green-800">Mã số sinh viên</span>';
+                infoHtml += '</div>';
+                infoHtml += '<p class="text-lg font-bold text-green-900">' + qrData + '</p>';
+                infoHtml += '<p class="text-sm text-green-700 mt-1">Định dạng: Văn bản đơn giản</p>';
+                infoHtml += '</div>';
             }
             
             infoHtml += '</div>';
@@ -467,16 +494,7 @@
                 resultHtml += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">';
                 resultHtml += '<p><strong>MSSV:</strong> ' + data.student.mssv + '</p>';
                 resultHtml += '<p><strong>Họ tên:</strong> ' + data.student.name + '</p>';
-                resultHtml += '<p><strong>Lớp:</strong> ' + data.student.class + '</p>';
                 resultHtml += '</div>';
-                resultHtml += '</div>';
-            }
-            
-            // Group information
-            if (data.group) {
-                resultHtml += '<div class="bg-green-50 p-3 rounded-lg">';
-                resultHtml += '<h4 class="font-semibold text-green-800 mb-2"><i class="fas fa-users mr-2"></i>Thông tin nhóm</h4>';
-                resultHtml += '<p class="text-sm"><strong>Tên nhóm:</strong> ' + data.group.name + '</p>';
                 resultHtml += '</div>';
             }
             

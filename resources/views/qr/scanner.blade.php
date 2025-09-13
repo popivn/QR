@@ -494,16 +494,7 @@
                 resultHtml += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">';
                 resultHtml += '<p><strong>MSSV:</strong> ' + data.student.mssv + '</p>';
                 resultHtml += '<p><strong>Họ tên:</strong> ' + data.student.name + '</p>';
-                resultHtml += '<p><strong>Lớp:</strong> ' + data.student.class + '</p>';
                 resultHtml += '</div>';
-                resultHtml += '</div>';
-            }
-            
-            // Group information
-            if (data.group) {
-                resultHtml += '<div class="bg-green-50 p-3 rounded-lg">';
-                resultHtml += '<h4 class="font-semibold text-green-800 mb-2"><i class="fas fa-users mr-2"></i>Thông tin nhóm</h4>';
-                resultHtml += '<p class="text-sm"><strong>Tên nhóm:</strong> ' + data.group.name + '</p>';
                 resultHtml += '</div>';
             }
             

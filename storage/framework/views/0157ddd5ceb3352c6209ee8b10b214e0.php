@@ -1,13 +1,13 @@
 
 
-<?php $__env->startSection('title', 'Admin - Quản lý nhóm - VTTU'); ?>
+<?php $__env->startSection('title', 'Admin - Nhóm - VTTU'); ?>
 
 <?php $__env->startSection('page-header'); ?>
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
             <h1 class="text-xl lg:text-3xl font-bold text-gray-800">
                 <i class="fas fa-users-cog text-blue-600 mr-3"></i>
-                Quản lý nhóm - Admin
+                Nhóm - Admin
             </h1>
             <p class="text-gray-600 mt-1 text-sm lg:text-base">Quản lý tất cả các nhóm trong hệ thống</p>
         </div>
