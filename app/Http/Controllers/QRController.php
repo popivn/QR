@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Endroid\QrCode\QrCode as EndroidQrCode;
+use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -180,14 +181,19 @@ class QRController extends Controller
             'timestamp' => now()->toISOString()
         ]);
 
-        $qrCodePath = $qrDir . '/' . $mssv . '.png';
-        $qrCode = QrCode::format('png')
-            ->size(300)
-            ->margin(2)
-            ->generate($qrData);
+        // Sử dụng Endroid QR Code thay vì SimpleSoftwareIO
+        $qrCode = new EndroidQrCode($qrData);
+        $qrCode->setSize(300);
+        $qrCode->setMargin(10);
 
+        // Tạo writer để tạo PNG
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+
+        $qrCodePath = $qrDir . '/' . $mssv . '.png';
+        
         // Lưu QR code vào storage
-        Storage::put($qrCodePath, $qrCode);
+        Storage::put($qrCodePath, $result->getString());
 
         return $qrCodePath;
     }
