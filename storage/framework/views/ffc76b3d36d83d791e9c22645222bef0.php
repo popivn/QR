@@ -8,37 +8,41 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-4 lg:py-8">
         <!-- Header -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <div class="flex items-center justify-between">
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 mb-6 lg:mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">
-                        <i class="fas fa-qrcode text-blue-600 mr-3"></i>
+                    <h1 class="text-xl lg:text-3xl font-bold text-gray-800">
+                        <i class="fas fa-qrcode text-blue-600 mr-2 lg:mr-3"></i>
                         QR Code Generator
                     </h1>
-                    <p class="text-gray-600 mt-2">Tạo mã QR cho sinh viên từ file Excel</p>
+                    <p class="text-gray-600 mt-1 text-sm lg:text-base">Tạo mã QR cho sinh viên thủ công hoặc từ file Excel</p>
                 </div>
-                <div class="flex space-x-4">
-                    <a href="<?php echo e(route('qr.list')); ?>" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-list mr-2"></i>Danh sách sinh viên
+                <div class="flex flex-col sm:flex-row gap-2 lg:gap-4">
+                    <a href="<?php echo e(route('qr.list')); ?>" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-list mr-2"></i>
+                        <span class="hidden sm:inline">Danh sách sinh viên</span>
+                        <span class="sm:hidden">Danh sách</span>
                     </a>
-                    <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-home mr-2"></i>Trang chủ
+                    <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-home mr-2"></i>
+                        <span class="hidden sm:inline">Trang chủ</span>
+                        <span class="sm:hidden">Trang chủ</span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Upload Form -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-6">
-                <i class="fas fa-upload text-blue-600 mr-2"></i>
-                Upload File Excel
+        <!-- Manual Input Form -->
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 mb-6 lg:mb-8">
+            <h2 class="text-lg lg:text-2xl font-semibold text-gray-800 mb-4 lg:mb-6">
+                <i class="fas fa-plus-circle text-green-600 mr-2"></i>
+                Tạo QR Code Thủ Công
             </h2>
             
             <?php if(session('success')): ?>
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                <div class="bg-green-100 border border-green-400 text-green-700 px-3 lg:px-4 py-2 lg:py-3 rounded-lg mb-4 lg:mb-6 text-sm lg:text-base">
                     <i class="fas fa-check-circle mr-2"></i>
                     <?php echo e(session('success')); ?>
 
@@ -46,7 +50,7 @@
             <?php endif; ?>
 
             <?php if(session('error')): ?>
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-3 lg:px-4 py-2 lg:py-3 rounded-lg mb-4 lg:mb-6 text-sm lg:text-base">
                     <i class="fas fa-exclamation-circle mr-2"></i>
                     <?php echo e(session('error')); ?>
 
@@ -54,7 +58,7 @@
             <?php endif; ?>
 
             <?php if($errors->any()): ?>
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-3 lg:px-4 py-2 lg:py-3 rounded-lg mb-4 lg:mb-6 text-sm lg:text-base">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
                     <ul class="list-disc list-inside">
                         <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -64,15 +68,160 @@
                 </div>
             <?php endif; ?>
 
-            <form action="<?php echo e(route('qr.upload')); ?>" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form action="<?php echo e(route('qr.create-manual')); ?>" method="POST" class="space-y-4 lg:space-y-6">
                 <?php echo csrf_field(); ?>
                 
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition duration-200">
-                    <div class="space-y-4">
-                        <i class="fas fa-file-excel text-6xl text-green-600"></i>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <div>
+                        <label for="mssv" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-id-card text-blue-600 mr-1"></i>
+                            MSSV <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="mssv" 
+                               name="mssv" 
+                               value="<?php echo e(old('mssv')); ?>"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                               placeholder="Nhập mã số sinh viên"
+                               required>
+                    </div>
+                    
+                    <div>
+                        <label for="class" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-graduation-cap text-purple-600 mr-1"></i>
+                            Lớp
+                        </label>
+                        <input type="text" 
+                               id="class" 
+                               name="class" 
+                               value="<?php echo e(old('class')); ?>"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                               placeholder="Nhập lớp">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <div>
+                        <label for="holot" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user text-green-600 mr-1"></i>
+                            Họ lót
+                        </label>
+                        <input type="text" 
+                               id="holot" 
+                               name="holot" 
+                               value="<?php echo e(old('holot')); ?>"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                               placeholder="Nhập họ lót">
+                    </div>
+                    
+                    <div>
+                        <label for="ten" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user text-green-600 mr-1"></i>
+                            Tên
+                        </label>
+                        <input type="text" 
+                               id="ten" 
+                               name="ten" 
+                               value="<?php echo e(old('ten')); ?>"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                               placeholder="Nhập tên">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <div>
+                        <label for="gioi" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-venus-mars text-pink-600 mr-1"></i>
+                            Giới tính
+                        </label>
+                        <select id="gioi" 
+                                name="gioi" 
+                                class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base">
+                            <option value="">Chọn giới tính</option>
+                            <option value="Nam" <?php echo e(old('gioi') == 'Nam' ? 'selected' : ''); ?>>Nam</option>
+                            <option value="Nữ" <?php echo e(old('gioi') == 'Nữ' ? 'selected' : ''); ?>>Nữ</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="ngay_sinh" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar text-orange-600 mr-1"></i>
+                            Ngày sinh
+                        </label>
+                        <input type="date" 
+                               id="ngay_sinh" 
+                               name="ngay_sinh" 
+                               value="<?php echo e(old('ngay_sinh')); ?>"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="name" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user text-green-600 mr-1"></i>
+                        Tên đầy đủ (tùy chọn)
+                    </label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="<?php echo e(old('name')); ?>"
+                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                           placeholder="Nhập tên đầy đủ (nếu khác với họ lót + tên)">
+                </div>
+
+                <div class="flex justify-center lg:justify-end">
+                    <button type="submit" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-6 lg:px-8 py-2 lg:py-3 rounded-lg font-medium transition duration-200 text-sm lg:text-base w-full sm:w-auto">
+                        <i class="fas fa-qrcode mr-2"></i>
+                        Tạo QR Code
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 mb-6 lg:mb-8">
+            <h2 class="text-lg lg:text-2xl font-semibold text-gray-800 mb-4 lg:mb-6">
+                <i class="fas fa-upload text-blue-600 mr-2"></i>
+                Upload File Excel
+            </h2>
+            
+            <?php if(session('success')): ?>
+                <div class="bg-green-100 border border-green-400 text-green-700 px-3 lg:px-4 py-2 lg:py-3 rounded-lg mb-4 lg:mb-6 text-sm lg:text-base">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <?php echo e(session('success')); ?>
+
+                </div>
+            <?php endif; ?>
+
+            <?php if(session('error')): ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-3 lg:px-4 py-2 lg:py-3 rounded-lg mb-4 lg:mb-6 text-sm lg:text-base">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <?php echo e(session('error')); ?>
+
+                </div>
+            <?php endif; ?>
+
+            <?php if($errors->any()): ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-3 lg:px-4 py-2 lg:py-3 rounded-lg mb-4 lg:mb-6 text-sm lg:text-base">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <ul class="list-disc list-inside">
+                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <li><?php echo e($error); ?></li>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
+            <form action="<?php echo e(route('qr.upload')); ?>" method="POST" enctype="multipart/form-data" class="space-y-4 lg:space-y-6">
+                <?php echo csrf_field(); ?>
+                
+                <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 lg:p-8 text-center hover:border-blue-400 transition duration-200">
+                    <div class="space-y-3 lg:space-y-4">
+                        <i class="fas fa-file-excel text-4xl lg:text-6xl text-green-600"></i>
                         <div>
-                            <h3 class="text-lg font-medium text-gray-700">Chọn file Excel</h3>
-                            <p class="text-gray-500">Hỗ trợ định dạng .xlsx, .xls (tối đa 10MB)</p>
+                            <h3 class="text-base lg:text-lg font-medium text-gray-700">Chọn file Excel</h3>
+                            <p class="text-gray-500 text-sm lg:text-base">Hỗ trợ định dạng .xlsx, .xls (tối đa 10MB)</p>
                         </div>
                         <input type="file" 
                                name="excel_file" 
@@ -81,30 +230,32 @@
                                class="hidden"
                                required>
                         <label for="excel_file" 
-                               class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg cursor-pointer transition duration-200">
+                               class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-lg cursor-pointer transition duration-200 text-sm lg:text-base">
                             <i class="fas fa-folder-open mr-2"></i>
                             Chọn File
                         </label>
-                        <p id="file-name" class="text-sm text-gray-600 hidden"></p>
+                        <p id="file-name" class="text-xs lg:text-sm text-gray-600 hidden"></p>
                     </div>
                 </div>
 
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 class="font-medium text-blue-800 mb-2">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 lg:p-4">
+                    <h4 class="font-medium text-blue-800 mb-2 text-sm lg:text-base">
                         <i class="fas fa-info-circle mr-2"></i>
                         Hướng dẫn sử dụng:
                     </h4>
-                    <ul class="text-blue-700 text-sm space-y-1">
-                        <li>• Cột đầu tiên (A): Mã số sinh viên (MSSV)</li>
-                        <li>• Cột thứ hai (B): Tên sinh viên (tùy chọn)</li>
-                        <li>• Cột thứ ba (C): Lớp (tùy chọn)</li>
+                    <ul class="text-blue-700 text-xs lg:text-sm space-y-1">
+                        <li>• Cột A: Mã số sinh viên (MSSV) - Bắt buộc</li>
+                        <li>• Cột B: Họ lót - Tùy chọn</li>
+                        <li>• Cột C: Tên - Tùy chọn</li>
+                        <li>• Cột D: Giới tính (Nam/Nữ) - Tùy chọn</li>
+                        <li>• Cột E: Ngày sinh (dd/mm/yyyy) - Tùy chọn</li>
                         <li>• Hàng đầu tiên sẽ được bỏ qua (header)</li>
                     </ul>
                 </div>
 
-                <div class="flex justify-end">
+                <div class="flex justify-center lg:justify-end">
                     <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition duration-200">
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 lg:px-8 py-2 lg:py-3 rounded-lg font-medium transition duration-200 text-sm lg:text-base w-full sm:w-auto">
                         <i class="fas fa-magic mr-2"></i>
                         Tạo QR Code
                     </button>
@@ -113,28 +264,36 @@
         </div>
 
         <!-- Features -->
-        <div class="grid md:grid-cols-3 gap-6">
-            <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
                 <div class="text-center">
-                    <i class="fas fa-file-upload text-4xl text-blue-600 mb-4"></i>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Upload Excel</h3>
-                    <p class="text-gray-600 text-sm">Upload file Excel chứa danh sách MSSV để tạo QR code hàng loạt</p>
+                    <i class="fas fa-plus-circle text-3xl lg:text-4xl text-green-600 mb-3 lg:mb-4"></i>
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Tạo Thủ Công</h3>
+                    <p class="text-gray-600 text-xs lg:text-sm">Nhập thông tin sinh viên trực tiếp để tạo QR code</p>
                 </div>
             </div>
             
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
                 <div class="text-center">
-                    <i class="fas fa-qrcode text-4xl text-green-600 mb-4"></i>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Tạo QR Code</h3>
-                    <p class="text-gray-600 text-sm">Hệ thống tự động tạo mã QR cho từng MSSV trong file Excel</p>
+                    <i class="fas fa-file-upload text-3xl lg:text-4xl text-blue-600 mb-3 lg:mb-4"></i>
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Upload Excel</h3>
+                    <p class="text-gray-600 text-xs lg:text-sm">Upload file Excel chứa danh sách MSSV để tạo QR code hàng loạt</p>
                 </div>
             </div>
             
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
                 <div class="text-center">
-                    <i class="fas fa-download text-4xl text-purple-600 mb-4"></i>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Tải xuống</h3>
-                    <p class="text-gray-600 text-sm">Tải xuống từng QR code hoặc tất cả dưới dạng file ZIP</p>
+                    <i class="fas fa-qrcode text-3xl lg:text-4xl text-purple-600 mb-3 lg:mb-4"></i>
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Tạo QR Code</h3>
+                    <p class="text-gray-600 text-xs lg:text-sm">Hệ thống tự động tạo mã QR cho từng MSSV</p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
+                <div class="text-center">
+                    <i class="fas fa-download text-3xl lg:text-4xl text-orange-600 mb-3 lg:mb-4"></i>
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Tải xuống</h3>
+                    <p class="text-gray-600 text-xs lg:text-sm">Tải xuống từng QR code hoặc tất cả dưới dạng file ZIP</p>
                 </div>
             </div>
         </div>

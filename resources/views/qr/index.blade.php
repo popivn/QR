@@ -69,8 +69,8 @@
             <form action="{{ route('qr.create-manual') }}" method="POST" class="space-y-4 lg:space-y-6">
                 @csrf
                 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-                    <div class="lg:col-span-1">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <div>
                         <label for="mssv" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
                             <i class="fas fa-id-card text-blue-600 mr-1"></i>
                             MSSV <span class="text-red-500">*</span>
@@ -84,20 +84,7 @@
                                required>
                     </div>
                     
-                    <div class="lg:col-span-1">
-                        <label for="name" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
-                            <i class="fas fa-user text-green-600 mr-1"></i>
-                            Tên sinh viên
-                        </label>
-                        <input type="text" 
-                               id="name" 
-                               name="name" 
-                               value="{{ old('name') }}"
-                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
-                               placeholder="Nhập tên sinh viên">
-                    </div>
-                    
-                    <div class="lg:col-span-1">
+                    <div>
                         <label for="class" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
                             <i class="fas fa-graduation-cap text-purple-600 mr-1"></i>
                             Lớp
@@ -109,6 +96,75 @@
                                class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
                                placeholder="Nhập lớp">
                     </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <div>
+                        <label for="holot" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user text-green-600 mr-1"></i>
+                            Họ lót
+                        </label>
+                        <input type="text" 
+                               id="holot" 
+                               name="holot" 
+                               value="{{ old('holot') }}"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                               placeholder="Nhập họ lót">
+                    </div>
+                    
+                    <div>
+                        <label for="ten" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user text-green-600 mr-1"></i>
+                            Tên
+                        </label>
+                        <input type="text" 
+                               id="ten" 
+                               name="ten" 
+                               value="{{ old('ten') }}"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                               placeholder="Nhập tên">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <div>
+                        <label for="gioi" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-venus-mars text-pink-600 mr-1"></i>
+                            Giới tính
+                        </label>
+                        <select id="gioi" 
+                                name="gioi" 
+                                class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base">
+                            <option value="">Chọn giới tính</option>
+                            <option value="Nam" {{ old('gioi') == 'Nam' ? 'selected' : '' }}>Nam</option>
+                            <option value="Nữ" {{ old('gioi') == 'Nữ' ? 'selected' : '' }}>Nữ</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="ngay_sinh" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar text-orange-600 mr-1"></i>
+                            Ngày sinh
+                        </label>
+                        <input type="date" 
+                               id="ngay_sinh" 
+                               name="ngay_sinh" 
+                               value="{{ old('ngay_sinh') }}"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="name" class="block text-sm lg:text-base font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user text-green-600 mr-1"></i>
+                        Tên đầy đủ (tùy chọn)
+                    </label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="{{ old('name') }}"
+                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm lg:text-base"
+                           placeholder="Nhập tên đầy đủ (nếu khác với họ lót + tên)">
                 </div>
 
                 <div class="flex justify-center lg:justify-end">
@@ -184,9 +240,11 @@
                         Hướng dẫn sử dụng:
                     </h4>
                     <ul class="text-blue-700 text-xs lg:text-sm space-y-1">
-                        <li>• Cột đầu tiên (A): Mã số sinh viên (MSSV)</li>
-                        <li>• Cột thứ hai (B): Tên sinh viên (tùy chọn)</li>
-                        <li>• Cột thứ ba (C): Lớp (tùy chọn)</li>
+                        <li>• Cột A: Mã số sinh viên (MSSV) - Bắt buộc</li>
+                        <li>• Cột B: Họ lót - Tùy chọn</li>
+                        <li>• Cột C: Tên - Tùy chọn</li>
+                        <li>• Cột D: Giới tính (Nam/Nữ) - Tùy chọn</li>
+                        <li>• Cột E: Ngày sinh (dd/mm/yyyy) - Tùy chọn</li>
                         <li>• Hàng đầu tiên sẽ được bỏ qua (header)</li>
                     </ul>
                 </div>

@@ -41,8 +41,12 @@ class QRController extends Controller
             for ($i = 1; $i < count($rows); $i++) {
                 $row = $rows[$i];
                 
-                // Giả sử cột đầu tiên là MSSV
+                // Format mới: MSSV, HOLOT, Ten, Gioi, NgaySinh
                 $mssv = trim($row[0] ?? '');
+                $holot = trim($row[1] ?? '');
+                $ten = trim($row[2] ?? '');
+                $gioi = trim($row[3] ?? '');
+                $ngaySinh = trim($row[4] ?? '');
                 
                 if (empty($mssv)) {
                     continue;
@@ -56,14 +60,31 @@ class QRController extends Controller
                     continue;
                 }
 
+                // Xử lý ngày sinh
+                $ngaySinhFormatted = null;
+                if (!empty($ngaySinh)) {
+                    try {
+                        // Hỗ trợ format dd/mm/yyyy
+                        if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $ngaySinh, $matches)) {
+                            $ngaySinhFormatted = $matches[3] . '-' . str_pad($matches[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                        }
+                    } catch (\Exception $e) {
+                        $errors[] = "MSSV {$mssv}: Ngày sinh không hợp lệ ({$ngaySinh})";
+                        continue;
+                    }
+                }
+
                 // Tạo QR code
                 $qrCodePath = $this->generateQRCode($mssv);
                 
                 // Lưu thông tin sinh viên
                 Student::create([
                     'mssv' => $mssv,
-                    'name' => $row[1] ?? null, // Cột thứ 2 là tên
-                    'class' => $row[2] ?? null, // Cột thứ 3 là lớp
+                    'holot' => $holot ?: null,
+                    'ten' => $ten ?: null,
+                    'gioi' => $gioi ?: null,
+                    'ngay_sinh' => $ngaySinhFormatted,
+                    'name' => trim($holot . ' ' . $ten), // Tạo full name từ holot + ten
                     'qr_code_path' => $qrCodePath
                 ]);
 
@@ -87,12 +108,20 @@ class QRController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'mssv' => 'required|string|max:20|unique:students,mssv',
+            'holot' => 'nullable|string|max:255',
+            'ten' => 'nullable|string|max:255',
+            'gioi' => 'nullable|string|max:10',
+            'ngay_sinh' => 'nullable|date',
             'name' => 'nullable|string|max:255',
             'class' => 'nullable|string|max:100'
         ], [
             'mssv.required' => 'MSSV là bắt buộc',
             'mssv.unique' => 'MSSV đã tồn tại',
             'mssv.max' => 'MSSV không được quá 20 ký tự',
+            'holot.max' => 'Họ lót không được quá 255 ký tự',
+            'ten.max' => 'Tên không được quá 255 ký tự',
+            'gioi.max' => 'Giới tính không được quá 10 ký tự',
+            'ngay_sinh.date' => 'Ngày sinh không hợp lệ',
             'name.max' => 'Tên không được quá 255 ký tự',
             'class.max' => 'Lớp không được quá 100 ký tự'
         ]);
@@ -105,6 +134,10 @@ class QRController extends Controller
 
         try {
             $mssv = trim($request->mssv);
+            $holot = trim($request->holot);
+            $ten = trim($request->ten);
+            $gioi = trim($request->gioi);
+            $ngaySinh = $request->ngay_sinh;
             $name = trim($request->name);
             $class = trim($request->class);
 
@@ -114,7 +147,11 @@ class QRController extends Controller
             // Lưu thông tin sinh viên
             Student::create([
                 'mssv' => $mssv,
-                'name' => $name ?: null,
+                'holot' => $holot ?: null,
+                'ten' => $ten ?: null,
+                'gioi' => $gioi ?: null,
+                'ngay_sinh' => $ngaySinh,
+                'name' => $name ?: trim($holot . ' ' . $ten),
                 'class' => $class ?: null,
                 'qr_code_path' => $qrCodePath
             ]);

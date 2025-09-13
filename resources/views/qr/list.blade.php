@@ -95,7 +95,14 @@
                                     </div>
                                     <div class="ml-3 min-w-0 flex-1">
                                         <div class="text-sm font-medium text-gray-900 truncate">{{ $student->mssv }}</div>
-                                        <div class="text-xs text-gray-600 truncate">{{ $student->name ?? 'Chưa cập nhật' }}</div>
+                                        <div class="text-xs text-gray-600 truncate">
+                                            {{ $student->name ?? (trim($student->holot . ' ' . $student->ten) ?: 'Chưa cập nhật') }}
+                                        </div>
+                                        @if($student->gioi || $student->ngay_sinh)
+                                            <div class="text-xs text-gray-500 truncate">
+                                                {{ $student->gioi ? $student->gioi : '' }}{{ $student->gioi && $student->ngay_sinh ? ' • ' : '' }}{{ $student->ngay_sinh ? $student->ngay_sinh->format('d/m/Y') : '' }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 @if($student->qr_code_path)
@@ -140,7 +147,13 @@
                                     <i class="fas fa-id-card mr-1"></i>MSSV
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    <i class="fas fa-user mr-1"></i>Tên sinh viên
+                                    <i class="fas fa-user mr-1"></i>Họ tên
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <i class="fas fa-venus-mars mr-1"></i>Giới tính
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <i class="fas fa-calendar mr-1"></i>Ngày sinh
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <i class="fas fa-graduation-cap mr-1"></i>Lớp
@@ -166,7 +179,13 @@
                                         <div class="text-sm font-medium text-gray-900">{{ $student->mssv }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ $student->name ?? 'Chưa cập nhật' }}</div>
+                                        <div class="text-sm text-gray-900">{{ $student->name ?? (trim($student->holot . ' ' . $student->ten) ?: 'Chưa cập nhật') }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ $student->gioi ?? 'Chưa cập nhật' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ $student->ngay_sinh ? $student->ngay_sinh->format('d/m/Y') : 'Chưa cập nhật' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $student->class ?? 'Chưa cập nhật' }}</div>

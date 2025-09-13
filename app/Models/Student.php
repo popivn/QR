@@ -8,9 +8,17 @@ class Student extends Model
 {
     protected $fillable = [
         'mssv',
+        'holot',
+        'ten',
+        'gioi',
+        'ngay_sinh',
         'name',
         'class',
         'qr_code_path'
+    ];
+
+    protected $casts = [
+        'ngay_sinh' => 'date',
     ];
 
     // Một student có thể được quét bởi nhiều groups
