@@ -35,7 +35,11 @@ RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache \
 
 # Xóa config mặc định của nginx và copy config Laravel
 RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/sites-available/default
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Tạo thư mục log cho nginx
+RUN mkdir -p /var/log/nginx && chown -R www-data:www-data /var/log/nginx
 
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
