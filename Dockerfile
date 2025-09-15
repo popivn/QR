@@ -7,6 +7,12 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install mbstring exif pcntl bcmath gd zip pdo_mysql \
     && rm -rf /var/lib/apt/lists/*
 
+# Cấu hình php-fpm sử dụng socket thay vì TCP port 9000
+RUN sed -i 's|listen = 9000|listen = /var/run/php/php-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's|;listen.owner = www-data|listen.owner = www-data|' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's|;listen.group = www-data|listen.group = www-data|' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's|;listen.mode = 0660|listen.mode = 0660|' /usr/local/etc/php-fpm.d/www.conf
+
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
