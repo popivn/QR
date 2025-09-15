@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install mbstring exif pcntl bcmath gd zip pdo_mysql \
     && rm -rf /var/lib/apt/lists/*
 
+# Tạo thư mục cho php-fpm socket
+RUN mkdir -p /var/run/php
+
 # Cấu hình php-fpm sử dụng socket thay vì TCP port 9000
 RUN sed -i 's|listen = 9000|listen = /var/run/php/php-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's|;listen.owner = www-data|listen.owner = www-data|' /usr/local/etc/php-fpm.d/www.conf \
@@ -25,6 +28,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 
 RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache \
     && chown -R www-data:www-data /var/www \
+    && chown -R www-data:www-data /var/run/php \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache || true
