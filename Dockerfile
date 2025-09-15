@@ -17,11 +17,12 @@ WORKDIR /var/www
 # Copy composer files for caching
 COPY composer.json composer.lock /var/www/
 
-# Install PHP deps (without dev)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Copy application source
 COPY . /var/www
+
+# Install PHP deps (without dev)
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Set permissions
 RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache \

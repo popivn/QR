@@ -160,39 +160,71 @@
         <?php endif; ?>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-        <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
-            <i class="fas fa-qrcode text-3xl lg:text-4xl text-blue-600 mb-4"></i>
-            <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">QR Code Generator</h3>
-            <p class="text-gray-600 text-sm lg:text-base mb-4">Tạo mã QR cho sinh viên</p>
-            <a href="<?php echo e(route('qr.index')); ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                <i class="fas fa-qrcode mr-2"></i>
-                Tạo QR Code
-            </a>
-        </div>
-        
-        <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
-            <i class="fas fa-chart-line text-3xl lg:text-4xl text-green-600 mb-4"></i>
-            <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Bảng xếp hạng</h3>
-            <p class="text-gray-600 text-sm lg:text-base mb-4">Xem xếp hạng các nhóm</p>
-            <a href="<?php echo e(route('qr.leaderboard')); ?>" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                <i class="fas fa-trophy mr-2"></i>
-                Xem xếp hạng
-            </a>
-        </div>
-        
-        <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
-            <i class="fas fa-history text-3xl lg:text-4xl text-purple-600 mb-4"></i>
-            <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Audit Log</h3>
-            <p class="text-gray-600 text-sm lg:text-base mb-4">Xem lịch sử hoạt động</p>
-            <a href="<?php echo e(route('audit.index')); ?>" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
-                <i class="fas fa-history mr-2"></i>
-                Xem log
-            </a>
+    <!-- Quick Actions - Collapsible -->
+    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6">
+        <button onclick="toggleAdminQuickActions()" class="w-full flex items-center justify-between text-left">
+            <h2 class="text-lg lg:text-2xl font-bold text-gray-800">
+                <i class="fas fa-bolt text-yellow-600 mr-2 lg:mr-3"></i>
+                Chức năng nhanh
+            </h2>
+            <i id="adminQuickActionsIcon" class="fas fa-chevron-down text-gray-500 transition-transform duration-200"></i>
+        </button>
+        <div id="adminQuickActionsContent" class="hidden mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
+                    <i class="fas fa-qrcode text-3xl lg:text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">QR Code Generator</h3>
+                    <p class="text-gray-600 text-sm lg:text-base mb-4">Tạo mã QR cho sinh viên</p>
+                    <a href="<?php echo e(route('qr.index')); ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-qrcode mr-2"></i>
+                        Tạo QR Code
+                    </a>
+                </div>
+                
+                <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
+                    <i class="fas fa-chart-line text-3xl lg:text-4xl text-green-600 mb-4"></i>
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Bảng xếp hạng</h3>
+                    <p class="text-gray-600 text-sm lg:text-base mb-4">Xem xếp hạng các nhóm</p>
+                    <a href="<?php echo e(route('qr.leaderboard')); ?>" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-trophy mr-2"></i>
+                        Xem xếp hạng
+                    </a>
+                </div>
+                
+                <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm text-center">
+                    <i class="fas fa-history text-3xl lg:text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-800 mb-2">Audit Log</h3>
+                    <p class="text-gray-600 text-sm lg:text-base mb-4">Xem lịch sử hoạt động</p>
+                    <a href="<?php echo e(route('audit.index')); ?>" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-history mr-2"></i>
+                        Xem log
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.toggleAdminQuickActions = function() {
+        const content = document.getElementById('adminQuickActionsContent');
+        const icon = document.getElementById('adminQuickActionsIcon');
+        
+        if (content && icon) {
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+    };
+});
+</script>
+<?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Workspace\Laravel\VTTU\QRScan\resources\views/group/admin-index.blade.php ENDPATH**/ ?>
