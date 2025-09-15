@@ -1,77 +1,55 @@
-# Use the official PHP image as a base image
-FROM php:8.2-fpm
+# =========================
+# Stage 1: PHP dependencies
+# =========================
+FROM php:8.2-fpm AS php
 
-# Install system dependencies, Node.js, npm
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    zip \
-    unzip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    libpq-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    nodejs \
-    npm \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
-
-# Cài Chromium (Headless Chrome/Chromium cho chrome-php/chrome & Browsershot)
-RUN apt-get update && apt-get install -y chromium \
-    && rm -rf /var/lib/apt/lists/*
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
+    libpq-dev libjpeg-dev libfreetype6-dev \
+    && docker-php-ext-install mbstring exif pcntl bcmath gd zip pdo_mysql
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www
 
-# Create appuser first
-RUN groupadd -g 1000 appuser && useradd -u 1000 -ms /bin/bash -g appuser appuser
-
-# Copy composer files first for better caching
+# Copy composer files for caching
 COPY composer.json composer.lock /var/www/
 
-# Install PHP dependencies as root
+# Install PHP deps (without dev)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Copy existing application directory contents
+# Copy application source
 COPY . /var/www
 
-# Re-run composer install to ensure all dependencies are properly installed
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Set permissions
+RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache \
+    && chown -R www-data:www-data /var/www
 
-# Create Laravel cache directories
-RUN mkdir -p bootstrap/cache \
-    && mkdir -p storage/framework/{cache,sessions,views} \
-    && mkdir -p storage/logs \
-    && mkdir -p storage/app/tmp_bulk_pdfs
-
-# Set proper permissions (run as root before switching user)
-RUN chown -R appuser:appuser /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache \
-    && chmod -R 755 /var/www/vendor
-
-# Generate application key and run migrations (as root before switching user)
-RUN php artisan key:generate --force \
-    && php artisan config:cache \
+# Laravel optimize
+RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
 
-# Make artisan executable if it exists
-RUN if [ -f /var/www/artisan ]; then chmod +x /var/www/artisan; fi
+# =========================
+# Stage 2: Nginx + PHP-FPM
+# =========================
+FROM nginx:1.25 AS production
 
-# Debug: List files to verify artisan exists
-RUN ls -la /var/www/ | head -20
+# Copy Nginx config
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Switch to non-root user
-USER appuser
+# Copy app from PHP stage
+COPY --from=php /var/www /var/www
+
+# Copy PHP-FPM socket config
+COPY --from=php /usr/local/etc/php-fpm.d/ /usr/local/etc/php-fpm.d/
+
+WORKDIR /var/www
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
-# Start Laravel with absolute path
-CMD ["php", "/var/www/artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Start supervisord (runs php-fpm + nginx together)
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
